@@ -99,8 +99,8 @@ def generate_trials(seed=None):
             (1600, 160, 'UEX', 1),
         ]
     # Add balanced neutral auditory pairs.
-    auditory_pairs.append(('neutralA', 100, 'neutral', 2))
-    auditory_pairs.append(('neutralA', 160, 'neutral', 2))
+    auditory_pairs.append(('neutralA', 100, 'neutral', 0)) # no auditory neutral condition
+    auditory_pairs.append(('neutralA', 160, 'neutral', 0))
     
     # Build the cross–product.
     trials = []
@@ -123,126 +123,6 @@ def generate_trials(seed=None):
     return trials
 
 
-def setup():
-
-    data_folder = Path(DATA_FOLDER)
-    data_folder.mkdir(exist_ok=True) # create data folder if it does not exist
-
-    # Initial dialog to check participant ID and create participant folder if it does not exist
-    dialog1 = Dialog()
-    dialog1.add_field(name="participant", default="01", label="Participant", format=int)
-    data = dialog1.show()
-    if not data:
-        raise RuntimeError("User cancelled the dialog.")
-    
-    participant_id =  f"sub-{data['participant']:02d}"
-
-    participant_folder = data_folder / participant_id
-    # create participant folder if it does not exist
-    participant_folder.mkdir(exist_ok=True)
-
-    if not participant_folder.exists(): # open a second dialog to get the rest of the participant info
-
-        dialog2 = Dialog("Demographic information")
-        dialog2.add_field(name="gender", default="female", label="Gender", choices=["female", "male", "other"])
-        dialog2.add_field(name="age", default="18", label="Age", format=int)
-        dialog2.add_field(name="handedness", default="right", label="Handedness", choices=["right", "left"])
-        data = dialog2.show()
-        if not data:
-            raise RuntimeError("User cancelled the dialog.")
-        
-        # We will store the participant data in a dictionary
-        # Store basic participant info
-        participant_data = {
-            "participant_id": participant_id,
-            "date": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "gender": data["gender"],
-            "age": data["age"],
-            "handedness": data["handedness"],
-        }
-
-        # We will also randomize the order of trials in the different phases, and key mappings
-        key_mapping1 =  {"LEFT": "frequent", "RIGHT": "infrequent", "SPACE": "neutral"}
-        key_mapping2 =  {"LEFT": "infrequent", "RIGHT": "frequent", "SPACE": "neutral"}
-
-        random_key_order = random.choice([True, False])
-
-        for block_i in range(PHASES["learning_blocks"]):
-            participant_data[f"conditions_learning_{block_i + 1}"] = generate_trials() 
-            participant_data[f"keymapping_learning_{block_i + 1}"] = key_mapping1 if block_i % 2 == random_key_order else key_mapping2
-
-        for block_i in range(PHASES["test_blocks"]):
-            participant_data[f"conditions_test_{block_i + 1}"] = generate_trials()
-            participant_data[f"keymapping_test_{block_i + 1}"] = key_mapping1 if block_i % 2 == random_key_order else key_mapping2
-
-        for block_i in range(PHASES["explicit_blocks"]):
-            participant_data[f"conditions_explicit_{block_i + 1}"] = generate_trials()
-            participant_data[f"keymapping_explicit_{block_i + 1}"] = key_mapping1 if block_i % 2 == random_key_order else key_mapping2
-
-        # Save participant data
-        with open(participant_folder / f"{participant_id}_info.json", "w") as f:
-            json.dump(participant_data, f, indent=4)
-    
-    else:
-        # Load participant data if it already exists
-        with open(participant_folder / f"{participant_id}_info.json", "r") as f:
-            participant_data = json.load(f)
-
-
-    # We will run a final dialog to select the block and phase, and start each block
-    # check which block we are in
-    completed_learning = len([f for f in participant_folder.iterdir() if "learning" in f.name])
-    completed_test = len([f for f in participant_folder.iterdir() if "test" in f.name])
-    completed_explicit = len([f for f in participant_folder.iterdir() if "explicit" in f.name])
-
-    if completed_learning < PHASES["learning_blocks"]:
-        dialog3 = Dialog(title="Block selected based on participant progress")
-        dialog3.add_field(name="phase", default="learning", label="Phase", choices=["learning", "test", "explicit"])
-        dialog3.add_field(name="block", default=str(completed_learning + 1), label="Block", format=int)
-        dialog3.add_field(name="full_screen", default="Yes", label="Full screen", choices=["Yes", "No"])
-        data = dialog3.show()
-        if not data:
-            raise RuntimeError("User cancelled the dialog.")
-        
-    elif completed_test < PHASES["test_blocks"]:
-        dialog3 = Dialog(title="Block selected based on participant progress")
-        dialog3.add_field(name="phase", default="test", label="Phase", choices=["learning", "test", "explicit"])
-        dialog3.add_field(name="block", default=str(completed_test + 1), label="Block", format=int)
-        dialog3.add_field(name="full_screen", default="Yes", label="Full screen", choices=["Yes", "No"])
-        data = dialog3.show()
-        if not data:
-            raise RuntimeError("User cancelled the dialog.")
-        
-    elif completed_explicit < PHASES["explicit_blocks"]:
-        dialog3 = Dialog(title="Block selected based on participant progress")
-        dialog3.add_field(name="phase", default="explicit", label="Phase", choices=["learning", "test", "explicit"])
-        dialog3.add_field(name="block", default=str(completed_explicit + 1), label="Block", format=int)
-        dialog3.add_field(name="full_screen", default="Yes", label="Full screen", choices=["Yes", "No"])
-        data = dialog3.show()
-        if not data:
-            raise RuntimeError("User cancelled the dialog.")
-    
-    else:
-        dialog3 = Dialog(title="All blocks have been completed. Running experiment again will override data of the selected block.")
-        dialog3.add_field(name="phase", default="explicit", label="Phase", choices=["learning", "test", "explicit"])
-        dialog3.add_field(name="block", default=PHASES["explicit_blocks"], label="Block", format=int)
-        dialog3.add_field(name="full_screen", default="Yes", label="Full screen", choices=["Yes", "No"])
-        data = dialog3.show()
-        if not data:
-            raise RuntimeError("User cancelled the dialog.")
-    
-    block = data["block"]
-    phase = data["phase"]
-    full_screen = data["full_screen"]
-
-    
-    window = Window(background_color=BACKGROUND_COLOR, fullscreen=full_screen == 'Yes')
-
-    return window, participant_data, phase, block, full_screen
-
-
-
-
 
 def setup():
 
@@ -262,7 +142,7 @@ def setup():
 
     participant_info_path = participant_folder / f"{participant_id}_info.json"
 
-    # 🔹 Check if participant data already exists
+    #  Check if participant data already exists
     if not participant_info_path.exists():
         # Second dialog to collect demographic info
         dialog2 = Dialog(title="Demographic Information")
@@ -345,3 +225,5 @@ def setup():
     window = Window(background_color=BACKGROUND_COLOR, fullscreen=full_screen == "Yes")
 
     return window, participant_data, phase, block, full_screen
+
+
