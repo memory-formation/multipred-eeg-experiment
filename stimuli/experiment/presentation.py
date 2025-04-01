@@ -93,3 +93,38 @@ def learning_response(window, key_mapping, trial):
         "reaction_time": reaction_time,
         "timeout": pressed_key is None,
     }
+
+def test_response(window, key_mapping, trial):
+
+    text_widget = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR)
+    text_widget.text = f"< {key_mapping['LEFT']}    neutral    {key_mapping['RIGHT']} >"
+    text_widget.draw()
+    clock = Clock()  # This allows to init a clock to measure the RT
+    window.flip()
+    clock.reset()  # This allows to reset the clock
+    key_event = window.wait_key(["SPACE", "LEFT", "RIGHT"], clock=clock, max_wait=2)
+    reaction_time = key_event.timestamp
+    pressed_key = key_event.key
+
+    if pressed_key is None:
+        outcome = 0
+        fixation_color = "red"
+    else:
+        correct_conditions = (
+            (key_mapping[pressed_key] == "normal" and trial["target"] == 0)
+            or (key_mapping[pressed_key] == "deviant" and trial["target"] == 1)
+        )
+
+        outcome = 1 if correct_conditions else 0  # saving the outcome of the trial
+        fixation_color = (
+            "green" if outcome else "red"
+        )  # setting the fixation color based on the outcome to provide visual feedback
+
+    return {
+        "pressed_key": pressed_key,
+        "outcome": outcome,
+        "response": key_mapping.get(pressed_key, "NA"),
+        "fixation_color": fixation_color,
+        "reaction_time": reaction_time,
+        "timeout": pressed_key is None,
+    }

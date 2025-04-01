@@ -4,7 +4,7 @@ from datetime import datetime
 from experiment.constants import COLOR, INSTRUCTIONS_TEXT, STIM_INFO
 from experiment.presentation import (create_puretone, draw_fixation,
                                      draw_gabor, learning_response,
-                                     show_instructions)
+                                     show_instructions, test_response)
 from experiment.responses import save_block_data
 from psychos.core import Clock, Interval
 
@@ -100,11 +100,11 @@ def test_phase(participant_data, block, window, full_screen):
         show_instructions(window, INSTRUCTIONS_TEXT["test_continue"])
    
 
-    conditions = participant_data[f"conditions_learning_{block}"]
-    key_mapping = participant_data[f"keymapping_learning_{block}"]
+    conditions = participant_data[f"conditions_test_{block}"]
+    key_mapping = participant_data[f"keymapping_test_{block}"]
     block_data = []
 
-    for i, trial in enumerate(conditions[:2]):
+    for i, trial in enumerate(conditions[:10]):
         if i == 0:
             fixation_color = COLOR  # set the fixation color. In subsequent trials, the fixation color will be updated based on the response to provide feedback
         else: 
@@ -151,14 +151,20 @@ def test_phase(participant_data, block, window, full_screen):
         trailing_tone = create_puretone(
             frequency=trial["a_trailing"], duration=STIM_INFO["target_duration"]
         )
-        draw_gabor(trial["v_trailing"])
+        if trial["target"] == 0:
+            ori_diff = 0
+        else: # in target trials we add a random orientation difference to the trailing gabor
+            ori_diff = 20
+            ori_diff = random.choice([-ori_diff, ori_diff])
+
+        draw_gabor(trial["v_trailing"] + ori_diff)  # draw the trailing gabor
         interval.wait()
         trailing_tone.play()
         window.flip()
         timestamp_dicts["start_trailing"] = trial_clock.time()
         window.wait(STIM_INFO["target_duration"])
         timestamp_dicts["start_response"] = trial_clock.time()
-        response = learning_response(window, key_mapping, trial)
+        response = test_response(window, key_mapping, trial)
         timestamp_dicts["end_trial"] = trial_clock.time()
         block_data.append(
             {
@@ -171,4 +177,4 @@ def test_phase(participant_data, block, window, full_screen):
             }
         )
     # Save the block data
-    save_block_data(participant_data, block_data, "learning", block)
+    save_block_data(participant_data, block_data, "test", block)

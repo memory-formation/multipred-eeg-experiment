@@ -1,6 +1,6 @@
 import os
 
-from experiment.phases import learning_phase
+from experiment.phases import learning_phase, test_phase
 from experiment.setup import setup
 
 
@@ -13,7 +13,7 @@ def main():
         learning_phase(participant_data, block, window, full_screen)
     
     elif phase == "test":
-        print("Test phase")
+        test_phase(participant_data, block, window, full_screen)
 
     elif phase == "explicit":
         print("Explicit phase")

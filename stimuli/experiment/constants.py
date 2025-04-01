@@ -4,8 +4,8 @@ DATA_FOLDER = "data"
 # Constants for the experiment setup
 PHASES = {
     "learning_blocks": 2,
-    "test_blocks": 1,
-    "explicit_blocks": 1,
+    "test_blocks": 6,
+    "explicit_blocks": 2,
 }
 
 # Constants for the experiment visuals

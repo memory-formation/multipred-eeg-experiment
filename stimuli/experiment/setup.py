@@ -183,24 +183,34 @@ def setup():
         }
 
         # Key mappings
-        key_mapping1 = {"LEFT": "frequent", "RIGHT": "infrequent", "SPACE": "neutral"}
-        key_mapping2 = {"LEFT": "infrequent", "RIGHT": "frequent", "SPACE": "neutral"}
-        random_key_order = random.choice([True, False])
+        learning_key_mapping1 = {"LEFT": "frequent", "RIGHT": "infrequent", "SPACE": "neutral"}
+        learning_key_mapping2 = {"LEFT": "infrequent", "RIGHT": "frequent", "SPACE": "neutral"}
+
+        test_key_mapping1 = {"LEFT": "deviant", "RIGHT": "normal"}
+        test_key_mapping2 = {"LEFT": "normal", "RIGHT": "deviant"}
+
+        explicit_key_mapping1 = {"LEFT": "frequent", "RIGHT": "infrequent"}
+        explicit_key_mapping2 = {"LEFT": "infrequent", "RIGHT": "frequent"}
+
+        
 
         # Learning phase
+        random_key_order = random.choice([True, False])
         for block in range(PHASES["learning_blocks"]):
             participant_data[f"conditions_learning_{block + 1}"] = generate_trials()
-            participant_data[f"keymapping_learning_{block + 1}"] = key_mapping1 if block % 2 == random_key_order else key_mapping2
+            participant_data[f"keymapping_learning_{block + 1}"] = learning_key_mapping1 if block % 2 == random_key_order else learning_key_mapping2
 
+        random_key_order = random.choice([True, False])
         # Test phase
         for block in range(PHASES["test_blocks"]):
             participant_data[f"conditions_test_{block + 1}"] = generate_trials()
-            participant_data[f"keymapping_test_{block + 1}"] = key_mapping1 if block % 2 == random_key_order else key_mapping2
+            participant_data[f"keymapping_test_{block + 1}"] = test_key_mapping1 if block % 2 == random_key_order else test_key_mapping2
 
+        random_key_order = random.choice([True, False])
         # Explicit phase
         for block in range(PHASES["explicit_blocks"]):
             participant_data[f"conditions_explicit_{block + 1}"] = generate_trials()
-            participant_data[f"keymapping_explicit_{block + 1}"] = key_mapping1 if block % 2 == random_key_order else key_mapping2
+            participant_data[f"keymapping_explicit_{block + 1}"] = explicit_key_mapping1 if block % 2 == random_key_order else explicit_key_mapping2
 
         # 🔹 Save JSON file
         with open(participant_info_path, "w") as f:
