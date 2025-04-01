@@ -10,6 +10,7 @@ from psychos.gui import Dialog
 
 from .constants import BACKGROUND_COLOR, DATA_FOLDER, PHASES
 
+import random
 def generate_trials(seed=None):
     """
     Generates a list of trials for a multisensory experiment with non-uniform transitional probabilities.
@@ -107,15 +108,34 @@ def generate_trials(seed=None):
     for v_lead, v_target, v_cond, v_weight in visual_pairs:
         for a_lead, a_target, a_cond, a_weight in auditory_pairs:
             count = v_weight * a_weight  # number of repetitions for this combination
-            for _ in range(count):
+            
+            if count == 0:
+                continue  # skip 
+
+            if count % 2 == 0: # event count of trials for this combination 
+                n_zeros = count // 2 # we can have an equal number of target and non-target trials
+                n_ones = count // 2
+            else: # odd number of trials, we need to randomize the distribution of targets and non-targets
+                if random.choice([True, False]): # more non-targets than targets
+                    n_zeros = count // 2
+                    n_ones = count - n_zeros
+                else: # more targets than non-targets
+                    n_ones = count // 2
+                    n_zeros = count - n_ones
+
+            target_list = [0] * n_zeros + [1] * n_ones # create a list of zeros and ones and shuffle
+            random.shuffle(target_list)
+
+            for t in target_list:
                 trial = {
-                    'v_leading': v_lead,
-                    'v_trailing': v_target,
-                    'v_pred': v_cond,
-                    'a_leading': a_lead,
-                    'a_trailing': a_target,
-                    'a_pred': a_cond
-                }
+                'v_leading': v_lead,
+                'v_trailing': v_target,
+                'v_pred': v_cond,
+                'a_leading': a_lead,
+                'a_trailing': a_target,
+                'a_pred': a_cond,
+                'target': t
+             }
                 trials.append(trial)
     
     # Shuffle the trial order to randomize sequence.
