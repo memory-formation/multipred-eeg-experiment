@@ -99,7 +99,7 @@ def generate_trials(auditory_mapping=0, visual_mapping=0):
             (1600, 160, 'UEX', 1),
         ]
     # Add balanced neutral auditory pairs.
-    auditory_pairs.append(('neutralA', 100, 'neutral', 0)) # no auditory neutral condition
+    auditory_pairs.append(('neutralA', 100, 'neutral', 0)) # 0 for no auditory neutral condition
     auditory_pairs.append(('neutralA', 160, 'neutral', 0))
     
     # Build the cross–product.
@@ -134,6 +134,95 @@ def generate_trials(auditory_mapping=0, visual_mapping=0):
                 'a_trailing': a_target,
                 'a_pred': a_cond,
                 'target': t,
+                'auditory_mapping': auditory_mapping,
+                'visual_mapping': visual_mapping,
+             }
+                trials.append(trial)
+    
+    # Shuffle the trial order to randomize sequence.
+    random.shuffle(trials)
+    return trials
+
+def generate_explicit_trials(block_modality="visual", visual_mapping=0, auditory_mapping=0):
+    """
+    Generates a list of trials for the explicit phase of the experiment.
+    """
+
+    # Randomize visual mapping: choose between two conditions.
+    if visual_mapping == 0:
+        # Condition A: horizontal->CW high, vertical->CCW high.
+        visual_pairs = [
+            (90, 135, 'EXP', 3), # asking 3 times for each pair
+            (90, 45,  'UEX', 3),
+            (0, 45, 'EXP', 3),
+            (0, 135, 'UEX', 3),
+        ]
+    else:
+        # Condition B: horizontal->CCW high, vertical->CW high.
+        visual_pairs = [
+            (90, 45, 'EXP', 3),
+            (90, 135, 'UEX', 3),
+            (0, 135, 'EXP', 3),
+            (0, 45, 'UEX', 3),
+        ]
+    
+    # Randomize auditory mapping: choose between two conditions.
+    if auditory_mapping == 0:
+        # Condition A: 1000Hz->100Hz high, 1600Hz->160Hz high.
+        auditory_pairs = [
+            (1000, 100, 'EXP', 3),
+            (1000, 160, 'UEX', 3),
+            (1600, 160, 'EXP', 3),
+            (1600, 100, 'UEX', 3),
+        ]
+    else:
+        # Condition B: 1000Hz->160Hz high, 1600Hz->100Hz high.
+        auditory_pairs = [
+            (1000, 160, 'EXP', 3),
+            (1000, 100, 'UEX', 3),
+            (1600, 100, 'EXP', 3),
+            (1600, 160, 'UEX', 3),
+        ]
+
+    
+    # Build list of trials
+    trials = []
+
+    if block_modality == "visual":
+        # Visual modality
+        for v_lead, v_target, v_cond, v_weight in visual_pairs:
+            count = v_weight * 1
+    
+
+            for i in range(count):
+                trial = {
+                'modality': 'visual',
+                'v_leading': v_lead,
+                'v_trailing': v_target,
+                'v_pred': v_cond,
+                'a_leading': None,
+                'a_trailing': None,
+                'a_pred': None,
+                'target': None,
+                'auditory_mapping': auditory_mapping,
+                'visual_mapping': visual_mapping,
+             }
+                trials.append(trial)
+    else: 
+        # Auditory modality
+        for a_lead, a_target, a_cond, a_weight in auditory_pairs:
+            count = a_weight * 1
+
+            for i in range(count):
+                trial = {
+                'modality': 'auditory',
+                'v_leading': None,
+                'v_trailing': None,
+                'v_pred': None,
+                'a_leading': a_lead,
+                'a_trailing': a_target,
+                'a_pred': a_cond,
+                'target': None,
                 'auditory_mapping': auditory_mapping,
                 'visual_mapping': visual_mapping,
              }
@@ -205,17 +294,24 @@ def setup():
             participant_data[f"conditions_learning_{block + 1}"] = generate_trials(participant_data["auditory_mapping"], participant_data["visual_mapping"])
             participant_data[f"keymapping_learning_{block + 1}"] = learning_key_mapping1 if block % 2 == random_key_order else learning_key_mapping2
 
-        random_key_order = random.choice([True, False])
+        
         # Test phase
+        random_key_order = random.choice([True, False])
         for block in range(PHASES["test_blocks"]):
             participant_data[f"conditions_test_{block + 1}"] = generate_trials(participant_data["auditory_mapping"], participant_data["visual_mapping"])
             participant_data[f"keymapping_test_{block + 1}"] = test_key_mapping1 if block % 2 == random_key_order else test_key_mapping2
 
-        random_key_order = random.choice([True, False])
+        
         # Explicit phase
-        for block in range(PHASES["explicit_blocks"]):
-            participant_data[f"conditions_explicit_{block + 1}"] = generate_trials()
-            participant_data[f"keymapping_explicit_{block + 1}"] = explicit_key_mapping1 if block % 2 == random_key_order else explicit_key_mapping2
+        explicit_blocks = ["visual", "auditory"]
+        explicit_keymappings = [explicit_key_mapping1, explicit_key_mapping2]
+        random.shuffle(explicit_blocks) # randomize the order of the blocks
+        random.shuffle(explicit_keymappings) # randomize the order of the key mappings
+
+        for block, block_modality, key_mapping in zip([1, 2], explicit_blocks, explicit_keymappings):
+            participant_data[f"conditions_explicit_{block}"] = generate_explicit_trials(block_modality, participant_data["visual_mapping"], participant_data["auditory_mapping"])
+            participant_data[f"keymapping_explicit_{block}"] = key_mapping
+
 
         # 🔹 Save JSON file
         with open(participant_info_path, "w") as f:

@@ -77,6 +77,48 @@ def test_response(window, key_mapping, trial):
         "timeout": pressed_key is None,
     }
 
+
+def explicit_response(window, key_mapping, trial):
+
+    text_widget = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR)
+    text_widget.text = f"< {key_mapping['LEFT']}            {key_mapping['RIGHT']} >"
+    text_widget.draw()
+    clock = Clock()  # This allows to init a clock to measure the RT
+    window.flip()
+    clock.reset()  # This allows to reset the clock
+    key_event = window.wait_key(["LEFT", "RIGHT"], clock=clock, max_wait=60)
+    reaction_time = key_event.timestamp
+    pressed_key = key_event.key
+    modality = trial["modality"]
+
+    if pressed_key is None:
+        outcome = 0
+    else:
+        if modality == "visual":
+            # Check if the response is correct based on the visual modality
+            correct_conditions = (
+                (key_mapping[pressed_key] == "frequent" and trial["v_pred"] == "EXP")
+                or (key_mapping[pressed_key] == "infrequent" and trial["v_pred"] == "UEX")
+            )
+        else: # auditory
+            # Check if the response is correct based on the auditory modality
+            correct_conditions = (
+                (key_mapping[pressed_key] == "frequent" and trial["a_pred"] == "EXP")
+                or (key_mapping[pressed_key] == "infrequent" and trial["a_pred"] == "UEX")
+            )
+
+        outcome = 1 if correct_conditions else 0  # saving the outcome of the trial
+
+    return { # returning the response data
+        "pressed_key": pressed_key,
+        "outcome": outcome,
+        "response": key_mapping.get(pressed_key, "NA"),
+        "reaction_time": reaction_time,
+        "timeout": pressed_key is None,
+    }
+
+
+
 # def staircase_response(last_outcome, ):
 #     """
 #     Adapative staircase procedure to adapt the difficulty of the task to the participant's performance.
