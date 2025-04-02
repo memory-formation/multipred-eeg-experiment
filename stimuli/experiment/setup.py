@@ -11,7 +11,7 @@ from psychos.gui import Dialog
 from .constants import BACKGROUND_COLOR, DATA_FOLDER, PHASES
 
 import random
-def generate_trials(seed=None):
+def generate_trials(auditory_mapping=0, visual_mapping=0):
     """
     Generates a list of trials for a multisensory experiment with non-uniform transitional probabilities.
     
@@ -54,11 +54,10 @@ def generate_trials(seed=None):
          - 'v_leading', 'v_trailing', 'v_pred'
          - 'a_leading', 'a_trailing', 'a_pred'
     """
-    if seed is not None:
-        random.seed(seed)
+
     
     # Randomize visual mapping: choose between two conditions.
-    if random.choice([True, False]):
+    if visual_mapping == 0:
         # Condition A: horizontal->CW high, vertical->CCW high.
         visual_pairs = [
             # Vertical stimulus: high probability for CCW, low for CW.
@@ -83,7 +82,7 @@ def generate_trials(seed=None):
     visual_pairs.append(('neutralV', 135, 'neutral', 2))
     
     # Randomize auditory mapping: choose between two conditions.
-    if random.choice([True, False]):
+    if auditory_mapping == 0:
         # Condition A: 1000Hz->100Hz high, 1600Hz->160Hz high.
         auditory_pairs = [
             (1000, 100, 'EXP', 3),
@@ -134,7 +133,9 @@ def generate_trials(seed=None):
                 'a_leading': a_lead,
                 'a_trailing': a_target,
                 'a_pred': a_cond,
-                'target': t
+                'target': t,
+                'auditory_mapping': auditory_mapping,
+                'visual_mapping': visual_mapping,
              }
                 trials.append(trial)
     
@@ -182,6 +183,10 @@ def setup():
             "handedness": data["handedness"],
         }
 
+        # probabilistic associations mapping
+        participant_data["auditory_mapping"] = random.choice([0, 1])
+        participant_data["visual_mapping"] = random.choice([0, 1])
+
         # Key mappings
         learning_key_mapping1 = {"LEFT": "frequent", "RIGHT": "infrequent", "SPACE": "neutral"}
         learning_key_mapping2 = {"LEFT": "infrequent", "RIGHT": "frequent", "SPACE": "neutral"}
@@ -197,13 +202,13 @@ def setup():
         # Learning phase
         random_key_order = random.choice([True, False])
         for block in range(PHASES["learning_blocks"]):
-            participant_data[f"conditions_learning_{block + 1}"] = generate_trials()
+            participant_data[f"conditions_learning_{block + 1}"] = generate_trials(participant_data["auditory_mapping"], participant_data["visual_mapping"])
             participant_data[f"keymapping_learning_{block + 1}"] = learning_key_mapping1 if block % 2 == random_key_order else learning_key_mapping2
 
         random_key_order = random.choice([True, False])
         # Test phase
         for block in range(PHASES["test_blocks"]):
-            participant_data[f"conditions_test_{block + 1}"] = generate_trials()
+            participant_data[f"conditions_test_{block + 1}"] = generate_trials(participant_data["auditory_mapping"], participant_data["visual_mapping"])
             participant_data[f"keymapping_test_{block + 1}"] = test_key_mapping1 if block % 2 == random_key_order else test_key_mapping2
 
         random_key_order = random.choice([True, False])
