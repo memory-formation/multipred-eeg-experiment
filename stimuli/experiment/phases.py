@@ -1,11 +1,12 @@
 import random
 from datetime import datetime
 
-from experiment.constants import COLOR, INSTRUCTIONS_TEXT, STIM_INFO
+from experiment.constants import (COLOR, INITIAL_STAIRCASE, INSTRUCTIONS_TEXT,
+                                  STAIRCASE_PARAMS, STIM_INFO)
 from experiment.presentation import (create_puretone, draw_fixation,
                                      draw_gabor, show_instructions)
 from experiment.responses import (explicit_response, learning_response,
-                                  save_block_data, test_response)
+                                  save_block_data, staircase, test_response)
 from psychos.core import Clock, Interval
 
 
@@ -92,6 +93,7 @@ def learning_phase(participant_data, block, window, full_screen):
 
 
 
+
 def test_phase(participant_data, block, window, full_screen):
     # Instructions
     if block == 1:
@@ -105,10 +107,21 @@ def test_phase(participant_data, block, window, full_screen):
     block_data = []
 
     for i, trial in enumerate(conditions[:10]):
-        if i == 0:
+        if i == 0: # first trial of the block
             fixation_color = COLOR  # set the fixation color. In subsequent trials, the fixation color will be updated based on the response to provide feedback
-        else: 
-            fixation_color = response["fixation_color"]
+
+            # Get staircase history
+            if block == 1: 
+                staircase_data = INITIAL_STAIRCASE # get the initial parameters, same for every participant
+            else: 
+                # get the last parameters from the previous block
+                with open('data/sub-04/sub-04_info.json') as f:
+                    staircase_data = json.load(f)
+
+        else: # subsequent trials
+            fixation_color = response["fixation_color"] # update fixation color based on the last response to provide feedback
+        
+     
         trial_clock = Clock()  # This allows to init a clock to measure the RT
         trial_clock.reset()
         timestamp_dicts = {}
@@ -119,21 +132,16 @@ def test_phase(participant_data, block, window, full_screen):
 
         # ====== Inter trial interval ==========
         iti_duration = random.uniform(*STIM_INFO["iti_range"])
-        interval = Interval(
-            duration=iti_duration
-        )  # This allows to init a time counter of duration
+        interval = Interval(duration=iti_duration)  # This allows to init a time counter of duration
         interval.reset()  # This allows to reset the time counter
         draw_fixation(fixation_color)  # draw the fixation dot with feedback color
         window.flip()
         timestamp_dicts["start_fixation"] = trial_clock.time()
 
         # ======= Leding stimuli ========
-        leading_tone = create_puretone(
-            frequency=trial["a_leading"], duration=STIM_INFO["leading_duration"]
-        )
+        leading_tone = create_puretone(frequency=trial["a_leading"], duration=STIM_INFO["leading_duration"])
         draw_gabor(trial["v_leading"])  # initiate the leading gabor,
         interval.wait()  # Waits for the remaining time of the interval
-
         leading_tone.play()  # play the leading tone
         window.flip()  # Flips the window to show the pre-loaded gabor
         timestamp_dicts["start_leading"] = trial_clock.time()
@@ -148,9 +156,7 @@ def test_phase(participant_data, block, window, full_screen):
         timestamp_dicts["start_isi"] = trial_clock.time()
 
         # ======= Trailing stimuli ========
-        trailing_tone = create_puretone(
-            frequency=trial["a_trailing"], duration=STIM_INFO["target_duration"]
-        )
+        trailing_tone = create_puretone(frequency=trial["a_trailing"], duration=STIM_INFO["target_duration"])
         if trial["target"] == 0:
             ori_diff = 0
         else: # in target trials we add a random orientation difference to the trailing gabor
@@ -163,9 +169,20 @@ def test_phase(participant_data, block, window, full_screen):
         window.flip()
         timestamp_dicts["start_trailing"] = trial_clock.time()
         window.wait(STIM_INFO["target_duration"])
+
+        # ======= Response ========
         timestamp_dicts["start_response"] = trial_clock.time()
         response = test_response(window, key_mapping, trial)
         timestamp_dicts["end_trial"] = trial_clock.time()
+
+        # --- Update the staircase if this is a target trial ---
+        if trial["target"] == 1:
+            # Update staircase_data
+            staircase_data["last_outcome"] = response["outcome"]
+            # Update staircase parameters based on participant's response.
+            staircase_data = staircase(**staircase_data, **STAIRCASE_PARAMS)
+                
+
         block_data.append(
             {
                 "num_trial": i,
@@ -173,9 +190,12 @@ def test_phase(participant_data, block, window, full_screen):
                 **trial,
                 **response,
                 **timestamp_dicts,
+                "staircase_data": staircase_data,
                 "full_screen": full_screen,
             }
         )
+
+
     # Save the block data
     save_block_data(participant_data, block_data, "test", block)
 

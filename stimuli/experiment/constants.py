@@ -62,6 +62,21 @@ STIM_INFO = {
     "target_duration": 0.5,
 }
 
+INITIAL_STAIRCASE = { # Intiial values for the staircase, same for all partiicpants bu updated during the experiment
+    "last_otucome": None, # Just needed to initialize the staircase
+    "ori_diff": 20, # initial value of orientation difference
+    "inversions_count": 0, # How many times the staircase has changed direction, from increasing to decreasing or vice versa
+    "last_direction" : "down", # Last direction of the staircase
+    "history": 0, # How many consecutive trials have been correct before this one
+    "step_size": None, # This is updated during the experiment, based on staircase_params
+}
+   
+STAIRCASE_PARAMS = { # Parameters to control how the staircase adapts to performance
+    "step_size_list": [6, 4, 2, 1], # How much ori_diff is updated after a given number of inversions
+    "step_update": [2, 4, 8], # After how manny inversions the step size is updated
+}
+
+
 GABOR_SIZE = "50vw"
 
 
