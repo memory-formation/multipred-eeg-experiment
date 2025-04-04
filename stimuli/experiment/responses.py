@@ -123,10 +123,14 @@ def staircase(last_outcome, ori_diff, inversions_count, last_direction, history,
     After three correct responses, the orientation difference (ori_diff) is decreased (more difficult).
     After one incorrect response, the orientation difference is increased (easier).
     3 up 1 down rule aims at a threshold of ~80% correct responses.
+    last_outcome: outcome of the last trial (0 or 1)
     ori_diff: current orientation difference
-    step_size: How much to increase/decrease the orientation difference
-    history: How many consecutive correct responses
+    inversions_count: number of times the staircase has changed direction
     last_direction: last direction of the staircase (up or down)
+    history: number of consecutive correct responses
+    step_size: current step size
+    step_size_list: list of step sizes to use for the staircase
+    step_update: list of step sizes to use for the staircase
     """
 
 
@@ -172,6 +176,33 @@ def staircase(last_outcome, ori_diff, inversions_count, last_direction, history,
     return staircase_data
 
 
+def load_last_staircase_data(participant_data, block):
+    """
+    Loads staircase_data from the final trial of the previous block.
+    """
+    participant_id = participant_data["participant_id"]
+    prev_block = block - 1
+    filepath = f"data/{participant_id}/test_block{prev_block}.json"
+
+    if os.path.exists(filepath):
+        with open(filepath, "r") as f:
+            block_trials = json.load(f)
+        last_trial = block_trials[-1] #[0]  # Get the final trial of previous block
+
+        staircase_data = {
+            "ori_diff": last_trial["ori_diff"],
+            "inversions_count": last_trial["inversions_count"],
+            "last_direction": last_trial["last_direction"],
+            "history": last_trial["history"],
+            "step_size": last_trial["step_size"],
+        }
+
+        return staircase_data
+    else:
+        raise FileNotFoundError(f"No previous block data found at: {filepath}")
+    
+
+
 def save_block_data(participant_data, block_data, phase, block):
     """
     Save the data of the block in the participant data directory as a json file
@@ -186,6 +217,6 @@ def save_block_data(participant_data, block_data, phase, block):
             json.dump(data, f)
     else:
         with open(out_path, "w") as f:
-            json.dump([block_data], f)
+            json.dump(block_data, f)
 
     print(f"Block data saved to {out_path}")

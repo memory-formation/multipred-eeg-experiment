@@ -6,7 +6,8 @@ from experiment.constants import (COLOR, INITIAL_STAIRCASE, INSTRUCTIONS_TEXT,
 from experiment.presentation import (create_puretone, draw_fixation,
                                      draw_gabor, show_instructions)
 from experiment.responses import (explicit_response, learning_response,
-                                  save_block_data, staircase, test_response)
+                                  load_last_staircase_data, save_block_data,
+                                  staircase, test_response)
 from psychos.core import Clock, Interval
 
 
@@ -106,7 +107,7 @@ def test_phase(participant_data, block, window, full_screen):
     key_mapping = participant_data[f"keymapping_test_{block}"]
     block_data = []
 
-    for i, trial in enumerate(conditions[:10]):
+    for i, trial in enumerate(conditions[:20]):
         if i == 0: # first trial of the block
             fixation_color = COLOR  # set the fixation color. In subsequent trials, the fixation color will be updated based on the response to provide feedback
 
@@ -115,8 +116,7 @@ def test_phase(participant_data, block, window, full_screen):
                 staircase_data = INITIAL_STAIRCASE # get the initial parameters, same for every participant
             else: 
                 # get the last parameters from the previous block
-                with open('data/sub-04/sub-04_info.json') as f:
-                    staircase_data = json.load(f)
+                staircase_data = load_last_staircase_data(participant_data, block)
 
         else: # subsequent trials
             fixation_color = response["fixation_color"] # update fixation color based on the last response to provide feedback
@@ -158,12 +158,12 @@ def test_phase(participant_data, block, window, full_screen):
         # ======= Trailing stimuli ========
         trailing_tone = create_puretone(frequency=trial["a_trailing"], duration=STIM_INFO["target_duration"])
         if trial["target"] == 0:
-            ori_diff = 0
+            current_ori_diff = 0
         else: # in target trials we add a random orientation difference to the trailing gabor
-            ori_diff = 20
-            ori_diff = random.choice([-ori_diff, ori_diff])
+            current_ori_diff = staircase_data["ori_diff"]
+            current_ori_diff = random.choice([-current_ori_diff, current_ori_diff])
 
-        draw_gabor(trial["v_trailing"] + ori_diff)  # draw the trailing gabor
+        draw_gabor(trial["v_trailing"] + current_ori_diff)  # draw the trailing gabor
         interval.wait()
         trailing_tone.play()
         window.flip()
@@ -190,7 +190,7 @@ def test_phase(participant_data, block, window, full_screen):
                 **trial,
                 **response,
                 **timestamp_dicts,
-                "staircase_data": staircase_data,
+                **staircase_data,
                 "full_screen": full_screen,
             }
         )

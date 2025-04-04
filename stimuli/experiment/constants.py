@@ -63,8 +63,8 @@ STIM_INFO = {
 }
 
 INITIAL_STAIRCASE = { # Intiial values for the staircase, same for all partiicpants bu updated during the experiment
-    "last_otucome": None, # Just needed to initialize the staircase
-    "ori_diff": 20, # initial value of orientation difference
+    "last_outcome": None, # Just needed to initialize the staircase
+    "ori_diff": 15, # initial value of orientation difference. In the first 
     "inversions_count": 0, # How many times the staircase has changed direction, from increasing to decreasing or vice versa
     "last_direction" : "down", # Last direction of the staircase
     "history": 0, # How many consecutive trials have been correct before this one
