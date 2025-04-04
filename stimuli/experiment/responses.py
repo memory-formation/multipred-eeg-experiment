@@ -5,6 +5,44 @@ from experiment.constants import COLOR, RESPONSE_FONT_SIZE
 from psychos.core import Clock
 from psychos.visual import Text
 
+def localizer_response(window, target_modality, target):
+    text_widget = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR)
+    if target_modality == "visual":
+        text_widget.text = f"Press SPACE if you saw a weak stimulus"
+    else: # target_modality == "auditory":
+        text_widget.text = f"Press SPACE if you heard a weak stimulus"
+
+    text_widget.draw()
+    clock = Clock()  # This allows to init a clock to measure the RT
+    window.flip()
+    clock.reset()  # This allows to reset the clock
+    key_event = window.wait_key(["SPACE"], clock=clock, max_wait=2)
+    reaction_time = key_event.timestamp
+    pressed_key = key_event.key
+
+    if pressed_key is None:
+        if target == 1:
+            outcome = 0
+            fixation_color = "red"
+        else: 
+            outcome = 1
+            fixation_color = "green"
+    else:
+        if target == 1:
+            outcome = 1
+            fixation_color = "green"
+        else: 
+            outcome = 0
+            fixation_color = "red"
+    return {
+        "pressed_key": pressed_key,
+        "outcome": outcome,
+        "response": pressed_key,
+        "fixation_color": fixation_color,
+        "reaction_time": reaction_time,
+        "timeout": pressed_key is None,
+    }
+
 
 def learning_response(window, key_mapping, trial):
 

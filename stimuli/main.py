@@ -1,6 +1,6 @@
 import os
 
-from experiment.phases import learning_phase, test_phase, explicit_phase
+from experiment.phases import learning_phase, test_phase, explicit_phase, localizer_phase
 from experiment.setup import setup
 
 
@@ -9,6 +9,9 @@ def main():
     # Setup
     window, participant_data, phase, block, full_screen = setup()
 
+    if phase == "localizer":
+        localizer_phase(participant_data, block, window, full_screen)
+        
     if phase == "learning":
         learning_phase(participant_data, block, window, full_screen)
     

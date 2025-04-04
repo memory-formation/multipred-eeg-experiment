@@ -43,7 +43,7 @@ def generate_neutral_gabor():
     return image
 
 
-def draw_gabor(orientation):
+def draw_gabor(orientation, contrast=GABOR_PARAMS["contrast"]):
 
     if orientation == "neutralV":
     #     image = Image("images/eye.png", width="30vw", height="30vw")
@@ -74,6 +74,7 @@ def draw_gabor(orientation):
             width=GABOR_SIZE,
             height=GABOR_SIZE,
             spatial_frequency=GABOR_PARAMS["spatial_frequency"],
+            contrast=contrast,
         )
 
         image.draw()

@@ -11,6 +11,42 @@ from psychos.gui import Dialog
 from .constants import BACKGROUND_COLOR, DATA_FOLDER, PHASES
 
 import random
+
+def generate_localizer_sequences(block_modality="visual", target_modality="visual"):
+    """
+    Generate a list of 8 stimuli for trials of the localizer phase.
+    A sequence for each modality.
+    The visual stimuli are Gabor patches with orientations 0, 45, 90, and 135 degrees.
+    The auditory stimuli are sine waves at frequencies 100Hz, 160Hz, 1000Hz and 1600Hz.
+    """
+
+    trials = []
+    for trial in range(PHASES["localizer_trials"]):
+        visual_stimuli = [0, 45, 90, 135] * 2
+        auditory_stimuli = [100, 160, 1000, 1600] * 2
+        target = [0, 0, 0, 0] * 2
+
+        if random.choice([True, False]): # on some trials we have a target
+            target[0] = 1 # placing the target and shuffling it
+            random.shuffle(target)
+
+        random.shuffle(visual_stimuli)
+        random.shuffle(auditory_stimuli)
+
+        # Create a trial with the randomized stimuli
+        trial_data = {
+            "visual_sequence": visual_stimuli,
+            "auditory_sequence": auditory_stimuli,
+            "target_sequence": target,
+            "block_modality": block_modality,
+            "target_modality": target_modality,
+        }
+
+        trials.append(trial_data)
+    return trials
+
+
+
 def generate_trials(auditory_mapping=0, visual_mapping=0):
     """
     Generates a list of trials for a multisensory experiment with non-uniform transitional probabilities.
@@ -286,6 +322,17 @@ def setup():
         explicit_key_mapping1 = {"LEFT": "frequent", "RIGHT": "infrequent"}
         explicit_key_mapping2 = {"LEFT": "infrequent", "RIGHT": "frequent"}
 
+
+        # Localizer phase
+        target_modalities = ["visual", "auditory"]
+        random.shuffle(target_modalities)  # Randomize the order of the modalities
+        for block, block_modality in enumerate(PHASES["localizer_blocks"]):
+            if block_modality == "multimodal":
+                target_modality = target_modalities[i]
+            else:
+                target_modality = block_modality
+
+            participant_data[f"conditions_localizer_{block + 1}"] = generate_localizer_sequences(block_modality=block_modality, target_modality=target_modality)
         
 
         # Learning phase
@@ -323,13 +370,17 @@ def setup():
             participant_data = json.load(f)
 
     # Check which blocks have been completed
+    completed_localizer = len([f for f in participant_folder.iterdir() if "localizer" in f.name])
     completed_learning = len([f for f in participant_folder.iterdir() if "learning" in f.name])
     completed_test = len([f for f in participant_folder.iterdir() if "test" in f.name])
     completed_explicit = len([f for f in participant_folder.iterdir() if "explicit" in f.name])
 
     # Dialog to select block and phase based on progress
     dialog3 = Dialog(title="Block Selection Based on Participant Progress")
-    if completed_learning < PHASES["learning_blocks"]:
+    if completed_localizer < len(PHASES["localizer_blocks"]):
+        dialog3.add_field(name="phase", default="localizer", label="Phase", choices=["localizer", "learning", "test", "explicit"])
+        dialog3.add_field(name="block", default=str(completed_localizer + 1), label="Block", format=int)
+    elif completed_learning < PHASES["learning_blocks"]:
         dialog3.add_field(name="phase", default="learning", label="Phase", choices=["learning", "test", "explicit"])
         dialog3.add_field(name="block", default=str(completed_learning + 1), label="Block", format=int)
     elif completed_test < PHASES["test_blocks"]:
