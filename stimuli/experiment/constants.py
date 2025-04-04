@@ -76,7 +76,17 @@ STAIRCASE_PARAMS = { # Parameters to control how the staircase adapts to perform
     "step_update": [2, 4, 8], # After how manny inversions the step size is updated
 }
 
+GABOR_PARAMS = {
+    "spatial_frequency": 20,
+    "size": "50vw",
+}
 
 GABOR_SIZE = "50vw"
 
+ISOTONIC_SOUNDS = { # Amplitudes needed for each frequency to make them isotonic. (calculated according to ISO 266)
+    100: 0.8, 
+    160: 0.41,
+    1000: 0.061,
+    1600: 0.081,
 
+}

@@ -2,7 +2,7 @@ import random
 from datetime import datetime
 
 from experiment.constants import (COLOR, INITIAL_STAIRCASE, INSTRUCTIONS_TEXT,
-                                  STAIRCASE_PARAMS, STIM_INFO)
+                                  ISOTONIC_SOUNDS, STAIRCASE_PARAMS, STIM_INFO)
 from experiment.presentation import (create_puretone, draw_fixation,
                                      draw_gabor, show_instructions)
 from experiment.responses import (explicit_response, learning_response,
@@ -23,7 +23,7 @@ def learning_phase(participant_data, block, window, full_screen):
     key_mapping = participant_data[f"keymapping_learning_{block}"]
     block_data = []
 
-    for i, trial in enumerate(conditions[:2]):
+    for i, trial in enumerate(conditions[:10]):
         if i == 0:
             fixation_color = COLOR  # set the fixation color. In subsequent trials, the fixation color will be updated based on the response to provide feedback
         else: 
@@ -48,7 +48,7 @@ def learning_phase(participant_data, block, window, full_screen):
 
         # ======= Leding stimuli ========
         leading_tone = create_puretone(
-            frequency=trial["a_leading"], duration=STIM_INFO["leading_duration"]
+            frequency=trial["a_leading"], duration=STIM_INFO["leading_duration"], amplitude=ISOTONIC_SOUNDS[trial["a_leading"]]
         )
         draw_gabor(trial["v_leading"])  # initiate the leading gabor,
         interval.wait()  # Waits for the remaining time of the interval
@@ -68,7 +68,7 @@ def learning_phase(participant_data, block, window, full_screen):
 
         # ======= Trailing stimuli ========
         trailing_tone = create_puretone(
-            frequency=trial["a_trailing"], duration=STIM_INFO["target_duration"]
+            frequency=trial["a_trailing"], duration=STIM_INFO["target_duration"], amplitude=ISOTONIC_SOUNDS[trial["a_trailing"]]
         )
         draw_gabor(trial["v_trailing"])
         interval.wait()
@@ -139,7 +139,7 @@ def test_phase(participant_data, block, window, full_screen):
         timestamp_dicts["start_fixation"] = trial_clock.time()
 
         # ======= Leding stimuli ========
-        leading_tone = create_puretone(frequency=trial["a_leading"], duration=STIM_INFO["leading_duration"])
+        leading_tone = create_puretone(frequency=trial["a_leading"], duration=STIM_INFO["leading_duration"], amplitude=ISOTONIC_SOUNDS[trial["a_leading"]])
         draw_gabor(trial["v_leading"])  # initiate the leading gabor,
         interval.wait()  # Waits for the remaining time of the interval
         leading_tone.play()  # play the leading tone
@@ -156,7 +156,7 @@ def test_phase(participant_data, block, window, full_screen):
         timestamp_dicts["start_isi"] = trial_clock.time()
 
         # ======= Trailing stimuli ========
-        trailing_tone = create_puretone(frequency=trial["a_trailing"], duration=STIM_INFO["target_duration"])
+        trailing_tone = create_puretone(frequency=trial["a_trailing"], duration=STIM_INFO["target_duration"], amplitude=ISOTONIC_SOUNDS[trial["a_trailing"]])
         if trial["target"] == 0:
             current_ori_diff = 0
         else: # in target trials we add a random orientation difference to the trailing gabor
@@ -233,7 +233,7 @@ def explicit_phase(participant_data, block, window, full_screen):
         # pre-load stimuli
         if trial["modality"] == "auditory":
             leading_tone = create_puretone(
-                frequency=trial["a_leading"], duration=STIM_INFO["leading_duration"]
+                frequency=trial["a_leading"], duration=STIM_INFO["leading_duration"], amplitude=ISOTONIC_SOUNDS[trial["a_leading"]]
             )
             draw_fixation(fixation_color)
         else:
@@ -258,7 +258,7 @@ def explicit_phase(participant_data, block, window, full_screen):
         if trial["modality"] == "auditory":
             draw_fixation(fixation_color)
             trailing_tone = create_puretone(
-                frequency=trial["a_trailing"], duration=STIM_INFO["target_duration"]
+                frequency=trial["a_trailing"], duration=STIM_INFO["target_duration"], amplitude=ISOTONIC_SOUNDS[trial["a_trailing"]]
             )
         else:
             draw_gabor(trial["v_trailing"])
