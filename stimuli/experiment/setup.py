@@ -38,8 +38,8 @@ def generate_localizer_sequences(block_modality="visual", target_modality="visua
             "visual_sequence": visual_stimuli,
             "auditory_sequence": auditory_stimuli,
             "target_sequence": target,
-            "block_modality": block_modality,
-            "target_modality": target_modality,
+            "block_modality": [block_modality] * len(visual_stimuli),
+            "target_modality": [target_modality] * len(visual_stimuli),
         }
 
         trials.append(trial_data)
