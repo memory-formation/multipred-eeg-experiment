@@ -328,7 +328,7 @@ def setup():
         random.shuffle(target_modalities)  # Randomize the order of the modalities
         for block, block_modality in enumerate(PHASES["localizer_blocks"]):
             if block_modality == "multimodal":
-                target_modality = target_modalities[i]
+                target_modality = target_modalities[block]
             else:
                 target_modality = block_modality
 
