@@ -40,6 +40,9 @@ def localizer_phase(participant_data, block, window, full_screen):
         draw_fixation(fixation_color)  # draw the fixation dot with feedback color
         window.flip()
         timestamp_dicts["start_fixation"] = trial_clock.time()
+        # send_trigger("fixation")
+        # window.wait(0.05)  # Waits for the leading duration
+        # sebd_trigger("reset")
 
         # ======= Stimuli sequence ========
         for auditory_freq, visual_ori, target, block_modality, target_modality in zip(trial["auditory_sequence"], trial["visual_sequence"], trial["target_sequence"], trial["block_modality"], trial["target_modality"]):
