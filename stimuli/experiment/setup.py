@@ -381,17 +381,17 @@ def setup():
         dialog3.add_field(name="phase", default="localizer", label="Phase", choices=["localizer", "learning", "test", "explicit"])
         dialog3.add_field(name="block", default=str(completed_localizer + 1), label="Block", format=int)
     elif completed_learning < PHASES["learning_blocks"]:
-        dialog3.add_field(name="phase", default="learning", label="Phase", choices=["learning", "test", "explicit"])
+        dialog3.add_field(name="phase", default="learning", label="Phase", choices=["localizer", "learning", "test", "explicit"])
         dialog3.add_field(name="block", default=str(completed_learning + 1), label="Block", format=int)
     elif completed_test < PHASES["test_blocks"]:
-        dialog3.add_field(name="phase", default="test", label="Phase", choices=["learning", "test", "explicit"])
+        dialog3.add_field(name="phase", default="test", label="Phase", choices=["localizer", "learning", "test", "explicit"])
         dialog3.add_field(name="block", default=str(completed_test + 1), label="Block", format=int)
     elif completed_explicit < PHASES["explicit_blocks"]:
-        dialog3.add_field(name="phase", default="explicit", label="Phase", choices=["learning", "test", "explicit"])
+        dialog3.add_field(name="phase", default="explicit", label="Phase", choices=["localizer", "learning", "test", "explicit"])
         dialog3.add_field(name="block", default=str(completed_explicit + 1), label="Block", format=int)
     else:
         dialog3 = Dialog(title="All blocks completed. Running experiment again will overwrite data.")
-        dialog3.add_field(name="phase", default="explicit", label="Phase", choices=["learning", "test", "explicit"])
+        dialog3.add_field(name="phase", default="explicit", label="Phase", choices=["localizer", "learning", "test", "explicit"])
         dialog3.add_field(name="block", default=PHASES["explicit_blocks"], label="Block", format=int)
 
     dialog3.add_field(name="full_screen", default="Yes", label="Full screen", choices=["Yes", "No"])

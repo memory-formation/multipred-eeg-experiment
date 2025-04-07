@@ -24,6 +24,8 @@ def localizer_phase(participant_data, block, window, full_screen):
     for i, trial in enumerate(conditions):
         if i == 0:
             fixation_color = COLOR  # set the fixation color. In subsequent trials, the fixation color will be updated based on the response to provide feedback
+        else: 
+            fixation_color = response["fixation_color"]
         
         trial_clock = Clock()  # This allows to init a clock to measure the RT
         trial_clock.reset()
@@ -51,7 +53,7 @@ def localizer_phase(participant_data, block, window, full_screen):
             if block_modality == "multimodal":
                 if target_modality == "auditory":
                     if target == 1:
-                        amplitude = ISOTONIC_SOUNDS[auditory_freq] * 0.5 # half the amplitude of sound
+                        amplitude = ISOTONIC_SOUNDS[auditory_freq] * 0.2 # half the amplitude of sound
                         contrast = 1 # keep the contrast of the gabor
                     else:
                         amplitude = ISOTONIC_SOUNDS[auditory_freq] 
@@ -65,33 +67,59 @@ def localizer_phase(participant_data, block, window, full_screen):
                         contrast = 1
             elif block_modality == "auditory":
                 if target == 1:
-                    amplitude = ISOTONIC_SOUNDS[auditory_freq] * 0.5
+                    amplitude = ISOTONIC_SOUNDS[auditory_freq] * 0.2
                     contrast = 0 # no contrast for the gabor
                 else:
                     amplitude = ISOTONIC_SOUNDS[auditory_freq] 
                     contrast = 0
             else: # visual
                 if target == 1:
-                    amplitude = ISOTONIC_SOUNDS[auditory_freq] 
-                    contrast = 0.5
+                    contrast = 0.2
                 else:
-                    amplitude = ISOTONIC_SOUNDS[auditory_freq] 
                     contrast = 1
 
             # pre-load stimuli
+            fixation_color = COLOR  # reset the fixation color to the default color for the ISI
             if block_modality == "multimodal":
+                if target_modality == "auditory":
+                    if target == 1:
+                        amplitude = ISOTONIC_SOUNDS[auditory_freq] * 0.2 # half the amplitude of sound
+                        contrast = 1 # keep the contrast of the gabor
+                    else:
+                        amplitude = ISOTONIC_SOUNDS[auditory_freq] 
+                        contrast = 1
+                else: # target modality visual
+                    if target == 1:
+                        amplitude = ISOTONIC_SOUNDS[auditory_freq] 
+                        contrast = 0.5 # half the contrast of the gabor
+                    else:
+                        amplitude = ISOTONIC_SOUNDS[auditory_freq] 
+                        contrast = 1
+
                 tone = create_puretone(
                     frequency=auditory_freq, duration=STIM_INFO["leading_duration"], amplitude=amplitude
                 )
                 draw_gabor(visual_ori, contrast) # Preload gabor
                 draw_fixation(fixation_color) # Preload fixation
+
             elif block_modality == "auditory":
+                if target == 1:
+                    amplitude = ISOTONIC_SOUNDS[auditory_freq] * 0.2
+                    contrast = 0 # no contrast for the gabor
+                else:
+                    amplitude = ISOTONIC_SOUNDS[auditory_freq] 
+                    contrast = 0
+
                 tone = create_puretone(
                     frequency=auditory_freq, duration=STIM_INFO["leading_duration"], amplitude=amplitude
                 )
-                draw_gabor(visual_ori, contrast) # Preload gabor
                 draw_fixation(fixation_color) # Preload fixation
             else: # visual
+                if target == 1:
+                    contrast = 0.2
+                else:
+                    contrast = 1
+                    
                 tone = create_puretone(
                     frequency=auditory_freq, duration=STIM_INFO["leading_duration"], amplitude=0 # No sound in visual block
                 )
@@ -99,7 +127,6 @@ def localizer_phase(participant_data, block, window, full_screen):
                 draw_fixation(fixation_color) # Preload fixation
 
             interval.wait()  # Waits for the remaining time of the interval
-            print(f"block_modality : {block_modality}, tone frequency: {auditory_freq}, amplitude: {amplitude}, target: {target}, target_modality: {target_modality}")
             tone.play()  # play the leading tone
             window.flip()  # Flips the window to show the pre-loaded gabor
             timestamp_dicts["start_leading"] = trial_clock.time()
@@ -113,7 +140,7 @@ def localizer_phase(participant_data, block, window, full_screen):
         
         # ======= Response ========
         timestamp_dicts["start_response"] = trial_clock.time()
-        response = localizer_response(window, target_modality, target)
+        response = localizer_response(window, target_modality, trial["target_sequence"])
         timestamp_dicts["end_trial"] = trial_clock.time()
         block_data.append(
             {

@@ -3,7 +3,7 @@ DATA_FOLDER = "data"
 
 # Constants for the experiment setup
 PHASES = {
-    "localizer_trials": 5,
+    "localizer_trials": 10,
     "localizer_blocks": ["auditory", "visual"], # another option is ["multimodal", "multimodal"]
     "learning_blocks": 2,
     "test_blocks": 6,
@@ -15,7 +15,7 @@ BACKGROUND_COLOR = "grey"
 COLOR = "white" # Color of the text
 INSTRUCTIONS_FONT_SIZE = 24
 RESPONSE_FONT_SIZE = 20
-FIXATION_FONT_SIZE = 30
+FIXATION_FONT_SIZE = 15
 
 
 # Instructions for the different blocks and phases
