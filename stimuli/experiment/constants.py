@@ -16,7 +16,7 @@ DATA_FOLDER = "data"
 # Constants for the experiment setup
 PHASES = {
     "localizer_trials": 10,
-    "localizer_blocks": ["visual", "visual"], # another option is ["multimodal", "multimodal"]
+    "localizer_blocks": ["auditory", "visual"], # another option is ["multimodal", "multimodal"]
     "learning_blocks": 2,
     "test_blocks": 6,
     "explicit_blocks": 2,
@@ -31,7 +31,7 @@ FIXATION_FONT_SIZE = 15
 
 
 STIM_INFO = {
-    "iti_range": (1.5, 2.25),
+    "iti_range": (0.75, 1.5),
     "leading_duration": 0.5,
     "isi_duration": 0.5,
     "target_duration": 0.5,
@@ -66,6 +66,13 @@ ISOTONIC_SOUNDS = { # Amplitudes needed for each frequency to make them isotonic
     1000: 0.061,
     1600: 0.081,
 
+}
+
+TRIGGER_MAPPING = {
+    "ITI": 1,
+    "ISI": 2,
+    "stimulus": 3,
+    "response": 4,
 }
 
 # Instructions for the different blocks and phases

@@ -8,6 +8,7 @@ from experiment.presentation import (create_puretone, draw_fixation,
 from experiment.responses import (explicit_response, learning_response,
                                   load_last_staircase_data, localizer_response,
                                   save_block_data, staircase, test_response)
+from experiment.triggers import send_trigger
 from psychos.core import Clock, Interval
 
 
@@ -42,9 +43,7 @@ def localizer_phase(participant_data, block, window, full_screen, screen_info):
         draw_fixation(fixation_color)  # draw the fixation dot with feedback color
         window.flip()
         timestamp_dicts["start_fixation"] = trial_clock.time()
-        # send_trigger("fixation")
-        # window.wait(0.05)  # Waits for the leading duration
-        # sebd_trigger("reset")
+        send_trigger("ITI")
 
         # ======= Stimuli sequence ========
         for auditory_freq, visual_ori, target, block_modality, target_modality in zip(trial["auditory_sequence"], trial["visual_sequence"], trial["target_sequence"], trial["block_modality"], trial["target_modality"]):      
@@ -98,6 +97,8 @@ def localizer_phase(participant_data, block, window, full_screen, screen_info):
                 draw_fixation(fixation_color) # Preload fixation
 
             interval.wait()  # Waits for the remaining time of the interval
+            send_trigger("stimulus") 
+            #send_trigger(f"{auditory_freq}_{visual_ori}") # More specific triggers?
             tone.play()  # play the leading tone
             window.flip()  # Flips the window to show the pre-loaded gabor
             timestamp_dicts["start_leading"] = trial_clock.time()
@@ -105,12 +106,14 @@ def localizer_phase(participant_data, block, window, full_screen, screen_info):
             # ======= ISI ========
             interval = Interval(duration=STIM_INFO["isi_duration"])
             interval.reset()
+            send_trigger("ISI")
             draw_fixation(fixation_color)
             window.flip()
             timestamp_dicts["start_isi"] = trial_clock.time()
         
         # ======= Response ========
         timestamp_dicts["start_response"] = trial_clock.time()
+        send_trigger("response")
         response = localizer_response(window, target_modality, trial["target"])
         timestamp_dicts["end_trial"] = trial_clock.time()
         block_data.append(
@@ -142,7 +145,7 @@ def learning_phase(participant_data, block, window, full_screen, screen_info):
     key_mapping = participant_data[f"keymapping_learning_{block}"]
     block_data = []
 
-    for i, trial in enumerate(conditions[:10]):
+    for i, trial in enumerate(conditions):
         if i == 0:
             fixation_color = COLOR  # set the fixation color. In subsequent trials, the fixation color will be updated based on the response to provide feedback
         else: 
@@ -157,21 +160,25 @@ def learning_phase(participant_data, block, window, full_screen, screen_info):
 
         # ====== Inter trial interval ==========
         iti_duration = random.uniform(*STIM_INFO["iti_range"])
-        interval = Interval(
-            duration=iti_duration
-        )  # This allows to init a time counter of duration
+        interval = Interval(duration=iti_duration)  # This allows to init a time counter of duration
         interval.reset()  # This allows to reset the time counter
         draw_fixation(fixation_color)  # draw the fixation dot with feedback color
         window.flip()
+        send_trigger("ITI")
         timestamp_dicts["start_fixation"] = trial_clock.time()
 
         # ======= Leding stimuli ========
+        # pre-load stimuli
+        fixation_color = COLOR  # reset the fixation color to the default color for the ISI
         leading_tone = create_puretone(
             frequency=trial["a_leading"], duration=STIM_INFO["leading_duration"], amplitude=ISOTONIC_SOUNDS[trial["a_leading"]]
         )
         draw_gabor(trial["v_leading"], screen_info)  # initiate the leading gabor,
+        draw_fixation(fixation_color)  # Preload fixation
         interval.wait()  # Waits for the remaining time of the interval
 
+        # presentation
+        send_trigger("stimulus")
         leading_tone.play()  # play the leading tone
         window.flip()  # Flips the window to show the pre-loaded gabor
         timestamp_dicts["start_leading"] = trial_clock.time()
@@ -180,22 +187,30 @@ def learning_phase(participant_data, block, window, full_screen, screen_info):
         # ======= ISI ========
         interval = Interval(duration=STIM_INFO["isi_duration"])
         interval.reset()
-        fixation_color = COLOR  # reset the fixation color to the default color for the ISI
+        send_trigger("ISI")
         draw_fixation(fixation_color)
         window.flip()
         timestamp_dicts["start_isi"] = trial_clock.time()
 
         # ======= Trailing stimuli ========
+        # pre-load stimuli
         trailing_tone = create_puretone(
             frequency=trial["a_trailing"], duration=STIM_INFO["target_duration"], amplitude=ISOTONIC_SOUNDS[trial["a_trailing"]]
         )
         draw_gabor(trial["v_trailing"], screen_info)
+        draw_fixation(fixation_color)
         interval.wait()
+
+        # presentation
+        send_trigger("stimulus")
         trailing_tone.play()
         window.flip()
         timestamp_dicts["start_trailing"] = trial_clock.time()
         window.wait(STIM_INFO["target_duration"])
+
+        # ======= Response ========
         timestamp_dicts["start_response"] = trial_clock.time()
+        send_trigger("response")
         response = learning_response(window, key_mapping, trial)
         timestamp_dicts["end_trial"] = trial_clock.time()
         block_data.append(
@@ -227,7 +242,7 @@ def test_phase(participant_data, block, window, full_screen, screen_info):
     key_mapping = participant_data[f"keymapping_test_{block}"]
     block_data = []
 
-    for i, trial in enumerate(conditions[:20]):
+    for i, trial in enumerate(conditions):
         if i == 0: # first trial of the block
             fixation_color = COLOR  # set the fixation color. In subsequent trials, the fixation color will be updated based on the response to provide feedback
 
@@ -256,12 +271,21 @@ def test_phase(participant_data, block, window, full_screen, screen_info):
         interval.reset()  # This allows to reset the time counter
         draw_fixation(fixation_color)  # draw the fixation dot with feedback color
         window.flip()
+        send_trigger("ITI")
         timestamp_dicts["start_fixation"] = trial_clock.time()
 
         # ======= Leding stimuli ========
-        leading_tone = create_puretone(frequency=trial["a_leading"], duration=STIM_INFO["leading_duration"], amplitude=ISOTONIC_SOUNDS[trial["a_leading"]])
+        # pre-load stimuli
+        fixation_color = COLOR  # reset the fixation color to the default color for the ISI
+        leading_tone = create_puretone(
+            frequency=trial["a_leading"], duration=STIM_INFO["leading_duration"], amplitude=ISOTONIC_SOUNDS[trial["a_leading"]]
+            )
         draw_gabor(trial["v_leading"], screen_info)  # initiate the leading gabor,
+        draw_fixation(fixation_color)  # Preload fixation
         interval.wait()  # Waits for the remaining time of the interval
+
+        # presentation
+        send_trigger("stimulus")
         leading_tone.play()  # play the leading tone
         window.flip()  # Flips the window to show the pre-loaded gabor
         timestamp_dicts["start_leading"] = trial_clock.time()
@@ -270,12 +294,13 @@ def test_phase(participant_data, block, window, full_screen, screen_info):
         # ======= ISI ========
         interval = Interval(duration=STIM_INFO["isi_duration"])
         interval.reset()
-        fixation_color = COLOR  # reset the fixation color to the default color for the ISI
         draw_fixation(fixation_color)
         window.flip()
+        send_trigger("ISI")
         timestamp_dicts["start_isi"] = trial_clock.time()
 
         # ======= Trailing stimuli ========
+        # pre-load stimuli
         trailing_tone = create_puretone(frequency=trial["a_trailing"], duration=STIM_INFO["target_duration"], amplitude=ISOTONIC_SOUNDS[trial["a_trailing"]])
         if trial["target"] == 0:
             current_ori_diff = 0
@@ -284,7 +309,11 @@ def test_phase(participant_data, block, window, full_screen, screen_info):
             current_ori_diff = random.choice([-current_ori_diff, current_ori_diff])
 
         draw_gabor(trial["v_trailing"] + current_ori_diff, screen_info)  # draw the trailing gabor
+        draw_fixation(fixation_color)  # Preload fixation
         interval.wait()
+
+        # presentation
+        send_trigger("stimulus")
         trailing_tone.play()
         window.flip()
         timestamp_dicts["start_trailing"] = trial_clock.time()
@@ -292,6 +321,7 @@ def test_phase(participant_data, block, window, full_screen, screen_info):
 
         # ======= Response ========
         timestamp_dicts["start_response"] = trial_clock.time()
+        send_trigger("response")
         response = test_response(window, key_mapping, trial)
         timestamp_dicts["end_trial"] = trial_clock.time()
 
@@ -348,6 +378,7 @@ def explicit_phase(participant_data, block, window, full_screen, screen_info):
         interval.reset()  # This allows to reset the time counter
         draw_fixation(fixation_color)  # draw the fixation dot with feedback color
         window.flip()
+        send_trigger("ITI")
         timestamp_dicts["start_fixation"] = trial_clock.time()
 
         # ======= Leding stimuli ========
@@ -360,8 +391,10 @@ def explicit_phase(participant_data, block, window, full_screen, screen_info):
         else:
             draw_gabor(trial["v_leading"], screen_info)  # initiate the leading gabor,
             draw_fixation(fixation_color)
+        interval.wait()  
 
-        interval.wait()  # Waits for 
+        # presentation
+        send_trigger("stimulus")
         if trial["modality"] == "auditory": leading_tone.play()  # play the leading tone only in auditory block
         window.flip()  # Flips the window to show the pre-loaded gabor and fixation
         timestamp_dicts["start_leading"] = trial_clock.time()
@@ -372,6 +405,7 @@ def explicit_phase(participant_data, block, window, full_screen, screen_info):
         interval.reset()
         draw_fixation(fixation_color)
         window.flip()
+        send_trigger("ISI")
         timestamp_dicts["start_isi"] = trial_clock.time()
 
         # ======= Trailing stimuli ========
@@ -384,8 +418,10 @@ def explicit_phase(participant_data, block, window, full_screen, screen_info):
         else:
             draw_gabor(trial["v_trailing"], screen_info)
             draw_fixation(fixation_color)
-        
         interval.wait()
+
+        # presentation
+        send_trigger("stimulus")
         if trial["modality"] == "auditory": trailing_tone.play()  # play the leading tone only in auditory block
         window.flip()
         timestamp_dicts["start_trailing"] = trial_clock.time()
@@ -393,6 +429,7 @@ def explicit_phase(participant_data, block, window, full_screen, screen_info):
 
         # ======= Response ========
         timestamp_dicts["start_response"] = trial_clock.time()
+        send_trigger("response")
         response = explicit_response(window, key_mapping, trial)
         timestamp_dicts["end_trial"] = trial_clock.time()
         block_data.append(
