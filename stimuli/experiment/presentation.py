@@ -1,5 +1,6 @@
+import numpy as np
 from experiment.constants import (COLOR, FIXATION_FONT_SIZE, GABOR_PARAMS,
-                                  GABOR_SIZE, INSTRUCTIONS_FONT_SIZE)
+                                  GABOR_SIZE, INSTRUCTIONS_FONT_SIZE, SCREENS)
 from psychos.core import Clock
 from psychos.sound import FlatEnvelope, Sine
 from psychos.visual import Gabor, Image, RawImage, Text
@@ -24,6 +25,21 @@ def draw_fixation(fixation_color):
     text_widget.draw()
 
 
+def visual_angle_to_pixels(angle_deg, distance_cm, screen_width_cm, screen_width_px):
+    # Convert angle to radians
+    angle_rad = np.deg2rad(angle_deg)
+    
+    # Calculate physical size on screen in cm
+    size_cm = 2 * distance_cm * np.tan(angle_rad / 2)
+    
+    # Calculate pixels/cm ratio
+    px_per_cm = screen_width_px / screen_width_cm
+    
+    # Convert physical size to pixels
+    size_px = size_cm * px_per_cm
+    return int(round(size_px))
+
+
 def generate_neutral_gabor():
     size = (256, 256)
     data_0 = 255 * gabor_3d(
@@ -43,7 +59,17 @@ def generate_neutral_gabor():
     return image
 
 
-def draw_gabor(orientation, contrast=GABOR_PARAMS["contrast"]):
+
+
+def draw_gabor(orientation, contrast=None):
+
+    if contrast is None:
+        contrast = GABOR_PARAMS["contrast"]
+
+    if GABOR_PARAMS["units"] == "deg":
+        size = visual_angle_to_pixels()
+    else:
+        size = "50vw" # default to percentage of screen width
 
     if orientation == "neutralV":
     #     image = Image("images/eye.png", width="30vw", height="30vw")
@@ -71,8 +97,8 @@ def draw_gabor(orientation, contrast=GABOR_PARAMS["contrast"]):
     else:  # gabor
         image = Gabor(
             orientation=orientation,
-            width=GABOR_SIZE,
-            height=GABOR_SIZE,
+            width=size,
+            height=size,
             spatial_frequency=GABOR_PARAMS["spatial_frequency"],
             contrast=contrast,
         )

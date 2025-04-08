@@ -7,19 +7,19 @@ from experiment.setup import setup
 # Main function that runs the experiment
 def main():
     # Setup
-    window, participant_data, phase, block, full_screen = setup()
+    window, participant_data, phase, block, full_screen, screen_info = setup()
 
     if phase == "localizer":
-        localizer_phase(participant_data, block, window, full_screen)
+        localizer_phase(participant_data, block, window, full_screen, screen_info)
         
     if phase == "learning":
-        learning_phase(participant_data, block, window, full_screen)
+        learning_phase(participant_data, block, window, full_screen, screen_info)
     
     elif phase == "test":
-        test_phase(participant_data, block, window, full_screen)
+        test_phase(participant_data, block, window, full_screen, screen_info)
 
     elif phase == "explicit":
-        explicit_phase(participant_data, block, window, full_screen)
+        explicit_phase(participant_data, block, window, full_screen, screen_info)
 
 
 if __name__ == "__main__":

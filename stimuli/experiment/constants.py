@@ -1,10 +1,22 @@
+SCREENS = {
+    "hp_laptop": {"screen_name": "HP Laptop",
+                "distance_cm": 60,
+                "screen_width_cm":52,
+                "screen_width_px":1920,},
+    "VU_experiment": {"screen_name": "VU Experiment",
+                "distance_cm": 60,
+                "screen_width_cm":52,
+                "screen_width_px":1920,},
+
+}
+
 # constants for data storage
 DATA_FOLDER = "data"
 
 # Constants for the experiment setup
 PHASES = {
     "localizer_trials": 10,
-    "localizer_blocks": ["auditory", "visual"], # another option is ["multimodal", "multimodal"]
+    "localizer_blocks": ["visual", "visual"], # another option is ["multimodal", "multimodal"]
     "learning_blocks": 2,
     "test_blocks": 6,
     "explicit_blocks": 2,
@@ -94,7 +106,9 @@ STAIRCASE_PARAMS = { # Parameters to control how the staircase adapts to perform
 GABOR_PARAMS = {
     "contrast": 1,
     "spatial_frequency": 20,
-    "size": "50vw",
+    "size": 11, 
+    "units": None #"deg", # Units of the Gabor size. If None it will be "50vw"
+
 }
 
 GABOR_SIZE = "50vw"

@@ -5,7 +5,7 @@ from experiment.constants import COLOR, RESPONSE_FONT_SIZE
 from psychos.core import Clock
 from psychos.visual import Text
 
-def localizer_response(window, target_modality, target_sequence):
+def localizer_response(window, target_modality, target):
     text_widget = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR)
     if target_modality == "visual":
         text_widget.text = f"Press SPACE if you saw a weak stimulus"
@@ -21,14 +21,14 @@ def localizer_response(window, target_modality, target_sequence):
     pressed_key = key_event.key
 
     if pressed_key is None:
-        if 1 in target_sequence:
+        if target == 1:
             outcome = 0
             fixation_color = "red"
         else: 
             outcome = 1
             fixation_color = "green"
     else:
-        if  not 1 in target_sequence:
+        if  target == 1:
             outcome = 1
             fixation_color = "green"
         else: 

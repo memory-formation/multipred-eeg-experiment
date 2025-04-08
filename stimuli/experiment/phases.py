@@ -11,7 +11,7 @@ from experiment.responses import (explicit_response, learning_response,
 from psychos.core import Clock, Interval
 
 
-def localizer_phase(participant_data, block, window, full_screen):
+def localizer_phase(participant_data, block, window, full_screen, screen_info):
     # Instructions
     if block == 1:
         show_instructions(window, INSTRUCTIONS_TEXT["localizer_start"])
@@ -47,40 +47,11 @@ def localizer_phase(participant_data, block, window, full_screen):
         # sebd_trigger("reset")
 
         # ======= Stimuli sequence ========
-        for auditory_freq, visual_ori, target, block_modality, target_modality in zip(trial["auditory_sequence"], trial["visual_sequence"], trial["target_sequence"], trial["block_modality"], trial["target_modality"]):
-            
-            # Checking for visual or audiotry target, and setting the amplitude and contrast accordingly
-            if block_modality == "multimodal":
-                if target_modality == "auditory":
-                    if target == 1:
-                        amplitude = ISOTONIC_SOUNDS[auditory_freq] * 0.2 # half the amplitude of sound
-                        contrast = 1 # keep the contrast of the gabor
-                    else:
-                        amplitude = ISOTONIC_SOUNDS[auditory_freq] 
-                        contrast = 1
-                else: # target modality visual
-                    if target == 1:
-                        amplitude = ISOTONIC_SOUNDS[auditory_freq] 
-                        contrast = 0.5 # half the contrast of the gabor
-                    else:
-                        amplitude = ISOTONIC_SOUNDS[auditory_freq] 
-                        contrast = 1
-            elif block_modality == "auditory":
-                if target == 1:
-                    amplitude = ISOTONIC_SOUNDS[auditory_freq] * 0.2
-                    contrast = 0 # no contrast for the gabor
-                else:
-                    amplitude = ISOTONIC_SOUNDS[auditory_freq] 
-                    contrast = 0
-            else: # visual
-                if target == 1:
-                    contrast = 0.2
-                else:
-                    contrast = 1
-
+        for auditory_freq, visual_ori, target, block_modality, target_modality in zip(trial["auditory_sequence"], trial["visual_sequence"], trial["target_sequence"], trial["block_modality"], trial["target_modality"]):      
             # pre-load stimuli
             fixation_color = COLOR  # reset the fixation color to the default color for the ISI
             if block_modality == "multimodal":
+                # Checking for visual or audiotry target, and setting the amplitude and contrast accordingl
                 if target_modality == "auditory":
                     if target == 1:
                         amplitude = ISOTONIC_SOUNDS[auditory_freq] * 0.2 # half the amplitude of sound
@@ -140,7 +111,7 @@ def localizer_phase(participant_data, block, window, full_screen):
         
         # ======= Response ========
         timestamp_dicts["start_response"] = trial_clock.time()
-        response = localizer_response(window, target_modality, trial["target_sequence"])
+        response = localizer_response(window, target_modality, trial["target"])
         timestamp_dicts["end_trial"] = trial_clock.time()
         block_data.append(
             {
@@ -149,6 +120,7 @@ def localizer_phase(participant_data, block, window, full_screen):
                 **trial,
                 **response,
                 **timestamp_dicts,
+                **screen_info,
                 "full_screen": full_screen,
             }
         )
@@ -158,7 +130,7 @@ def localizer_phase(participant_data, block, window, full_screen):
 
 
 
-def learning_phase(participant_data, block, window, full_screen):
+def learning_phase(participant_data, block, window, full_screen, screen_info):
     # Instructions
     if block == 1:
         show_instructions(window, INSTRUCTIONS_TEXT["learning_start"])
@@ -233,6 +205,7 @@ def learning_phase(participant_data, block, window, full_screen):
                 **trial,
                 **response,
                 **timestamp_dicts,
+                **screen_info,
                 "full_screen": full_screen,
             }
         )
@@ -242,7 +215,7 @@ def learning_phase(participant_data, block, window, full_screen):
 
 
 
-def test_phase(participant_data, block, window, full_screen):
+def test_phase(participant_data, block, window, full_screen, screen_info):
     # Instructions
     if block == 1:
         show_instructions(window, INSTRUCTIONS_TEXT["test_start"])
@@ -338,6 +311,7 @@ def test_phase(participant_data, block, window, full_screen):
                 **response,
                 **timestamp_dicts,
                 **staircase_data,
+                **screen_info,
                 "full_screen": full_screen,
             }
         )
@@ -348,7 +322,7 @@ def test_phase(participant_data, block, window, full_screen):
 
 
 
-def explicit_phase(participant_data, block, window, full_screen):
+def explicit_phase(participant_data, block, window, full_screen, screen_info):
     # Instructions
     show_instructions(window, INSTRUCTIONS_TEXT["explicit_phase"])
    
@@ -428,6 +402,7 @@ def explicit_phase(participant_data, block, window, full_screen):
                 **trial,
                 **response,
                 **timestamp_dicts,
+                **screen_info,
                 "full_screen": full_screen,
             }
         )

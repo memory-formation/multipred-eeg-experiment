@@ -8,7 +8,7 @@ import random
 from psychos import Window
 from psychos.gui import Dialog
 
-from .constants import BACKGROUND_COLOR, DATA_FOLDER, PHASES
+from .constants import BACKGROUND_COLOR, DATA_FOLDER, PHASES, SCREENS
 
 import random
 
@@ -24,11 +24,14 @@ def generate_localizer_sequences(block_modality="visual", target_modality="visua
     for trial in range(PHASES["localizer_trials"]):
         visual_stimuli = [0, 45, 90, 135] * 2
         auditory_stimuli = [100, 160, 1000, 1600] * 2
-        target = [0, 0, 0, 0] * 2
+        target_sequence = [0, 0, 0, 0] * 2
 
         if random.choice([True, False]): # on some trials we have a target
-            target[0] = 1 # placing the target and shuffling it
-            random.shuffle(target)
+            target = 1
+            target_sequence[0] = 1 # placing the target and shuffling it
+            random.shuffle(target_sequence)
+        else:
+            target = 0
 
         random.shuffle(visual_stimuli)
         random.shuffle(auditory_stimuli)
@@ -37,7 +40,8 @@ def generate_localizer_sequences(block_modality="visual", target_modality="visua
         trial_data = {
             "visual_sequence": visual_stimuli,
             "auditory_sequence": auditory_stimuli,
-            "target_sequence": target,
+            "target_sequence": target_sequence,
+            "target": target,
             "block_modality": [block_modality] * len(visual_stimuli),
             "target_modality": [target_modality] * len(visual_stimuli),
         }
@@ -395,6 +399,7 @@ def setup():
         dialog3.add_field(name="block", default=PHASES["explicit_blocks"], label="Block", format=int)
 
     dialog3.add_field(name="full_screen", default="Yes", label="Full screen", choices=["Yes", "No"])
+    dialog3.add_field(name="screen_info", default="hp_laptop", label="experiment_screen", choices=["hp_laptop", "VU_experiment"])
     data = dialog3.show()
     if not data:
         raise RuntimeError("User cancelled the dialog.")
@@ -402,10 +407,11 @@ def setup():
     block = data["block"]
     phase = data["phase"]
     full_screen = data["full_screen"]
+    screen_info = SCREENS[data["screen_info"]]
 
     #  window for the experiment
     window = Window(background_color=BACKGROUND_COLOR, fullscreen=full_screen == "Yes")
 
-    return window, participant_data, phase, block, full_screen
+    return window, participant_data, phase, block, full_screen, screen_info
 
 
