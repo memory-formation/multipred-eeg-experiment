@@ -5,7 +5,7 @@ SCREENS = {
                 "screen_width_px":1920,},
     "VU_experiment": {"screen_name": "VU Experiment",
                 "distance_cm": 70,
-                "screen_width_cm":52,
+                "screen_width_cm":52.6,
                 "screen_width_px":1920,},
 
 }
