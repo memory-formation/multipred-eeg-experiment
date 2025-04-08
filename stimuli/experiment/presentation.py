@@ -37,7 +37,10 @@ def visual_angle_to_pixels(angle_deg, distance_cm, screen_width_cm, screen_width
     
     # Convert physical size to pixels
     size_px = size_cm * px_per_cm
-    return int(round(size_px))
+
+    spatial_frequency = GABOR_PARAMS["spatial_frequency"] * angle_deg  # Adjust spatial frequency based on size
+
+    return int(round(size_px)), spatial_frequency
 
 
 def generate_neutral_gabor():
@@ -61,15 +64,16 @@ def generate_neutral_gabor():
 
 
 
-def draw_gabor(orientation, contrast=None):
+def draw_gabor(orientation, screen_info, contrast=None):
 
     if contrast is None:
         contrast = GABOR_PARAMS["contrast"]
 
     if GABOR_PARAMS["units"] == "deg":
-        size = visual_angle_to_pixels()
+        size, spatial_frequency = visual_angle_to_pixels(GABOR_PARAMS["size"], screen_info["distance_cm"], screen_info["screen_width_cm"], screen_info["screen_width_px"])
     else:
         size = "50vw" # default to percentage of screen width
+        spatial_frequency = 20  # Adjust spatial frequency based on size
 
     if orientation == "neutralV":
     #     image = Image("images/eye.png", width="30vw", height="30vw")
@@ -99,7 +103,7 @@ def draw_gabor(orientation, contrast=None):
             orientation=orientation,
             width=size,
             height=size,
-            spatial_frequency=GABOR_PARAMS["spatial_frequency"],
+            spatial_frequency=spatial_frequency,
             contrast=contrast,
         )
 

@@ -1,10 +1,10 @@
 SCREENS = {
     "hp_laptop": {"screen_name": "HP Laptop",
-                "distance_cm": 60,
-                "screen_width_cm":52,
+                "distance_cm": 50,
+                "screen_width_cm":34.5,
                 "screen_width_px":1920,},
     "VU_experiment": {"screen_name": "VU Experiment",
-                "distance_cm": 60,
+                "distance_cm": 70,
                 "screen_width_cm":52,
                 "screen_width_px":1920,},
 
@@ -29,6 +29,44 @@ INSTRUCTIONS_FONT_SIZE = 24
 RESPONSE_FONT_SIZE = 20
 FIXATION_FONT_SIZE = 15
 
+
+STIM_INFO = {
+    "iti_range": (1.5, 2.25),
+    "leading_duration": 0.5,
+    "isi_duration": 0.5,
+    "target_duration": 0.5,
+}
+
+INITIAL_STAIRCASE = { # Intiial values for the staircase, same for all partiicpants bu updated during the experiment
+    "last_outcome": None, # Just needed to initialize the staircase
+    "ori_diff": 15, # initial value of orientation difference. In the first 
+    "inversions_count": 0, # How many times the staircase has changed direction, from increasing to decreasing or vice versa
+    "last_direction" : "down", # Last direction of the staircase
+    "history": 0, # How many consecutive trials have been correct before this one
+    "step_size": None, # This is updated during the experiment, based on staircase_params
+}
+   
+STAIRCASE_PARAMS = { # Parameters to control how the staircase adapts to performance
+    "step_size_list": [6, 4, 2, 1], # How much ori_diff is updated after a given number of inversions
+    "step_update": [2, 4, 8], # After how manny inversions the step size is updated
+}
+
+GABOR_PARAMS = {
+    "contrast": 1,
+    "spatial_frequency": 2.4, # Spatial frequency of the Gabor in cycles per degree
+    "size": 20, 
+    "units": "deg" #"deg", # Units of the Gabor size. If None it will be "50vw", and spatial_frquency 20 cycles for the whole image
+}
+
+GABOR_SIZE = "50vw"
+
+ISOTONIC_SOUNDS = { # Amplitudes needed for each frequency to make them isotonic. (calculated according to ISO 266)
+    100: 0.8, 
+    160: 0.41,
+    1000: 0.061,
+    1600: 0.081,
+
+}
 
 # Instructions for the different blocks and phases
 INSTRUCTIONS_TEXT = {
@@ -79,44 +117,4 @@ INSTRUCTIONS_TEXT = {
         "Your task is to indicate whether the visual stimulus was frequent or infrequent.",
         "Press the space bar to continue.",
     ],
-}
-
-
-STIM_INFO = {
-    "iti_range": (1.5, 2.25),
-    "leading_duration": 0.5,
-    "isi_duration": 0.5,
-    "target_duration": 0.5,
-}
-
-INITIAL_STAIRCASE = { # Intiial values for the staircase, same for all partiicpants bu updated during the experiment
-    "last_outcome": None, # Just needed to initialize the staircase
-    "ori_diff": 15, # initial value of orientation difference. In the first 
-    "inversions_count": 0, # How many times the staircase has changed direction, from increasing to decreasing or vice versa
-    "last_direction" : "down", # Last direction of the staircase
-    "history": 0, # How many consecutive trials have been correct before this one
-    "step_size": None, # This is updated during the experiment, based on staircase_params
-}
-   
-STAIRCASE_PARAMS = { # Parameters to control how the staircase adapts to performance
-    "step_size_list": [6, 4, 2, 1], # How much ori_diff is updated after a given number of inversions
-    "step_update": [2, 4, 8], # After how manny inversions the step size is updated
-}
-
-GABOR_PARAMS = {
-    "contrast": 1,
-    "spatial_frequency": 20,
-    "size": 11, 
-    "units": None #"deg", # Units of the Gabor size. If None it will be "50vw"
-
-}
-
-GABOR_SIZE = "50vw"
-
-ISOTONIC_SOUNDS = { # Amplitudes needed for each frequency to make them isotonic. (calculated according to ISO 266)
-    100: 0.8, 
-    160: 0.41,
-    1000: 0.061,
-    1600: 0.081,
-
 }

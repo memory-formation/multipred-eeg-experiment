@@ -94,7 +94,7 @@ def localizer_phase(participant_data, block, window, full_screen, screen_info):
                 tone = create_puretone(
                     frequency=auditory_freq, duration=STIM_INFO["leading_duration"], amplitude=0 # No sound in visual block
                 )
-                draw_gabor(visual_ori, contrast)
+                draw_gabor(visual_ori, screen_info, contrast)
                 draw_fixation(fixation_color) # Preload fixation
 
             interval.wait()  # Waits for the remaining time of the interval
@@ -169,7 +169,7 @@ def learning_phase(participant_data, block, window, full_screen, screen_info):
         leading_tone = create_puretone(
             frequency=trial["a_leading"], duration=STIM_INFO["leading_duration"], amplitude=ISOTONIC_SOUNDS[trial["a_leading"]]
         )
-        draw_gabor(trial["v_leading"])  # initiate the leading gabor,
+        draw_gabor(trial["v_leading"], screen_info)  # initiate the leading gabor,
         interval.wait()  # Waits for the remaining time of the interval
 
         leading_tone.play()  # play the leading tone
@@ -189,7 +189,7 @@ def learning_phase(participant_data, block, window, full_screen, screen_info):
         trailing_tone = create_puretone(
             frequency=trial["a_trailing"], duration=STIM_INFO["target_duration"], amplitude=ISOTONIC_SOUNDS[trial["a_trailing"]]
         )
-        draw_gabor(trial["v_trailing"])
+        draw_gabor(trial["v_trailing"], screen_info)
         interval.wait()
         trailing_tone.play()
         window.flip()
@@ -260,7 +260,7 @@ def test_phase(participant_data, block, window, full_screen, screen_info):
 
         # ======= Leding stimuli ========
         leading_tone = create_puretone(frequency=trial["a_leading"], duration=STIM_INFO["leading_duration"], amplitude=ISOTONIC_SOUNDS[trial["a_leading"]])
-        draw_gabor(trial["v_leading"])  # initiate the leading gabor,
+        draw_gabor(trial["v_leading"], screen_info)  # initiate the leading gabor,
         interval.wait()  # Waits for the remaining time of the interval
         leading_tone.play()  # play the leading tone
         window.flip()  # Flips the window to show the pre-loaded gabor
@@ -283,7 +283,7 @@ def test_phase(participant_data, block, window, full_screen, screen_info):
             current_ori_diff = staircase_data["ori_diff"]
             current_ori_diff = random.choice([-current_ori_diff, current_ori_diff])
 
-        draw_gabor(trial["v_trailing"] + current_ori_diff)  # draw the trailing gabor
+        draw_gabor(trial["v_trailing"] + current_ori_diff, screen_info)  # draw the trailing gabor
         interval.wait()
         trailing_tone.play()
         window.flip()
@@ -358,7 +358,7 @@ def explicit_phase(participant_data, block, window, full_screen, screen_info):
             )
             draw_fixation(fixation_color)
         else:
-            draw_gabor(trial["v_leading"])  # initiate the leading gabor,
+            draw_gabor(trial["v_leading"], screen_info)  # initiate the leading gabor,
             draw_fixation(fixation_color)
 
         interval.wait()  # Waits for 
@@ -382,7 +382,7 @@ def explicit_phase(participant_data, block, window, full_screen, screen_info):
                 frequency=trial["a_trailing"], duration=STIM_INFO["target_duration"], amplitude=ISOTONIC_SOUNDS[trial["a_trailing"]]
             )
         else:
-            draw_gabor(trial["v_trailing"])
+            draw_gabor(trial["v_trailing"], screen_info)
             draw_fixation(fixation_color)
         
         interval.wait()
