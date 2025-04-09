@@ -62,7 +62,7 @@ def learning_response(window, key_mapping, trial):
     else:
         correct_conditions = (
             (key_mapping[pressed_key] == "neutral" and trial["v_pred"] == "neutral")
-            or (key_mapping[pressed_key] != "frequent" and trial["v_pred"] == "EXP")
+            or (key_mapping[pressed_key] == "frequent" and trial["v_pred"] == "EXP")
             or (key_mapping[pressed_key] == "infrequent" and trial["v_pred"] == "UEX")
         )
 

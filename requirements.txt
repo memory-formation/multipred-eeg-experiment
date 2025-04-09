@@ -1,0 +1,5 @@
+numpy
+git+https://github.com/memory-formation/psychos
+pyglet==2.0.21
+pyparallel
+pyserial

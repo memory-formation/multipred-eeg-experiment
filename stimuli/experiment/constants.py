@@ -18,7 +18,7 @@ PHASES = {
     "localizer_trials": 10,
     "localizer_blocks": ["auditory", "visual"], # another option is ["multimodal", "multimodal"]
     "learning_blocks": 2,
-    "test_blocks": 6,
+    "test_blocks": 2,
     "explicit_blocks": 2,
 }
 
