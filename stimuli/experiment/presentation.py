@@ -1,6 +1,6 @@
 import numpy as np
 from experiment.constants import (COLOR, FIXATION_FONT_SIZE, GABOR_PARAMS,
-                                  GABOR_SIZE, INSTRUCTIONS_FONT_SIZE, SCREENS)
+                                  INSTRUCTIONS_FONT_SIZE)
 from psychos.core import Clock
 from psychos.sound import FlatEnvelope, Sine
 from psychos.visual import Gabor, Image, RawImage, Text
@@ -46,24 +46,23 @@ def visual_angle_to_pixels(angle_deg, distance_cm, screen_width_cm, screen_width
 
 def generate_neutral_gabor(screen_info):
     if GABOR_PARAMS["units"] == "deg":
-        size_px, spatial_frequency = visual_angle_to_pixels(GABOR_PARAMS["size"], screen_info["distance_cm"], screen_info["screen_width_cm"], screen_info["screen_width_px"])
-        size = (size_px, size_px) 
+        size, spatial_frequency = visual_angle_to_pixels(GABOR_PARAMS["size"], screen_info["distance_cm"], screen_info["screen_width_cm"], screen_info["screen_width_px"])
     else:
-        size = (256, 256) # default to percentage of screen width
+        size = 256 # default to percentage of screen width
         spatial_frequency = 20  # Adjust spatial frequency based on size
   
     data_0 = 255 * gabor_3d(
-        size=size, spatial_frequency=spatial_frequency, orientation=0, contrast=0.5
+        size=(256, 256), spatial_frequency=spatial_frequency, orientation=0, contrast=0.5
     )
     data_90 = 255 * gabor_3d(
-        size=size, spatial_frequency=spatial_frequency, orientation=90, contrast=0.5
+        size=(256, 256), spatial_frequency=spatial_frequency, orientation=90, contrast=0.5
     )
     data_neutral = 0.5 * (data_0 + data_90)
     data_neutral = data_neutral.astype("uint8")
     image = RawImage(
         raw_image=data_neutral,
-        width=GABOR_SIZE,
-        height=GABOR_SIZE,
+        width=size,
+        height=size,
     )
 
     return image
@@ -83,25 +82,6 @@ def draw_gabor(orientation, screen_info, contrast=None):
         spatial_frequency = 20  # Adjust spatial frequency based on size
 
     if orientation == "neutralV":
-    #     image = Image("images/eye.png", width="30vw", height="30vw")
-    #     image1 = Gabor(
-    #         orientation=0,
-    #         width=GABOR_SIZE,
-    #         height=GABOR_SIZE,
-    #         spatial_frequency=GABOR_PARAMS["spatial_frequency"],
-    #         contrast=0.5,
-    #     )
-    #     image2 = Gabor(
-    #         orientation=90,
-    #         width=GABOR_SIZE,
-    #         height=GABOR_SIZE,
-    #         spatial_frequency=GABOR_PARAMS["spatial_frequency"],
-    #         contrast=0.5,
-    #     )
-
-    #     image1.draw()
-    #     image2.draw()
-
         image = generate_neutral_gabor(screen_info)
         image.draw()
 

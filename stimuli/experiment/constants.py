@@ -58,7 +58,7 @@ GABOR_PARAMS = {
     "units": "deg" #"deg", # Units of the Gabor size. If None it will be "50vw", and spatial_frquency 20 cycles for the whole image
 }
 
-GABOR_SIZE = "50vw"
+
 
 ISOTONIC_SOUNDS = { # Amplitudes needed for each frequency to make them isotonic. (calculated according to ISO 266)
     100: 0.8, 

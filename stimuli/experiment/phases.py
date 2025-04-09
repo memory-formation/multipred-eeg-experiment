@@ -1,6 +1,6 @@
 import random
 from datetime import datetime
-
+from time import perf_counter
 from experiment.constants import (COLOR, INITIAL_STAIRCASE, INSTRUCTIONS_TEXT,
                                   ISOTONIC_SOUNDS, STAIRCASE_PARAMS, STIM_INFO)
 from experiment.presentation import (create_puretone, draw_fixation,
@@ -160,11 +160,17 @@ def learning_phase(participant_data, block, window, full_screen, screen_info):
 
         # ====== Inter trial interval ==========
         iti_duration = random.uniform(*STIM_INFO["iti_range"])
+        start_time = perf_counter()
         interval = Interval(duration=iti_duration)  # This allows to init a time counter of duration
+        print(f"Tiempo transcurrido {perf_counter() - start_time} tras inicializar el intervalo")
         send_trigger("ITI")
+        print(f"Tiempo transcurrido {perf_counter() - start_time} tras enviar el trigger de ITI")
         interval.reset()  # This allows to reset the time counter
+        print(f"Tiempo transcurrido {perf_counter() - start_time} tras resetear el intervalo")
         draw_fixation(fixation_color)  # draw the fixation dot with feedback color
+        print(f"Tiempo transcurrido {perf_counter() - start_time} tras dibujar la fijacion")
         window.flip()
+        print(f"Tiempo transcurrido {perf_counter() - start_time} tras hacer flip")
         timestamp_dicts["start_fixation"] = trial_clock.time()
 
         # ======= Leding stimuli ========
@@ -173,9 +179,13 @@ def learning_phase(participant_data, block, window, full_screen, screen_info):
         leading_tone = create_puretone(
             frequency=trial["a_leading"], duration=STIM_INFO["leading_duration"], amplitude=ISOTONIC_SOUNDS[trial["a_leading"]]
         )
+        print(f"Tiempo transcurrido {perf_counter() - start_time} tras crear el tono")
         draw_gabor(trial["v_leading"], screen_info)  # initiate the leading gabor,
+        print(f"Tiempo transcurrido {perf_counter() - start_time} tras dibujar el gabor")
         draw_fixation(fixation_color)  # Preload fixation
+        print(f"Tiempo transcurrido {perf_counter() - start_time} tras dibujar la siguiente fijacion")
         interval.wait()  # Waits for the remaining time of the interval
+        print(f"Tiempo transcurrido {perf_counter() - start_time} tras esperar el wait")
 
         # presentation
         send_trigger("stimulus")
