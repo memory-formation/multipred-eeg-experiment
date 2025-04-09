@@ -71,7 +71,6 @@ def generate_neutral_gabor(screen_info):
 
 
 def draw_gabor(orientation, screen_info, contrast=None):
-
     if contrast is None:
         contrast = GABOR_PARAMS["contrast"]
 
