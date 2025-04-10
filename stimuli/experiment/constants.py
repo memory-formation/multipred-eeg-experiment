@@ -1,3 +1,5 @@
+from experiment.triggers import generate_triggers
+
 SCREENS = {
     "hp_laptop": {"screen_name": "HP Laptop",
                 "distance_cm": 50,
@@ -68,13 +70,15 @@ ISOTONIC_SOUNDS = { # Amplitudes needed for each frequency to make them isotonic
 
 }
 
-TRIGGER_MAPPING = {
-    "ITI": 1,
-    "ISI": 2,
-    "stimulus": 3,
-    "response": 4,
+CONDITIONS_MAIN = { # Define conditions in the test and learning phases
+    "v_stimulus": [45, 135],
+    "v_pred_cond": ["EXP", "UEX", "neutral"],
+    "a_stimulus": [100, 160],
+    "a_pred_cond": ["EXP", "UEX"],
 }
-
+TRIGGERS_MAIN = generate_triggers(CONDITIONS_MAIN) # Generate dictionary that assigns trigger numbers to each trial type and event
+    
+    
 # Instructions for the different blocks and phases
 INSTRUCTIONS_TEXT = {
     "localizer_start": [

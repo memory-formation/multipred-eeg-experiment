@@ -146,6 +146,14 @@ def learning_phase(participant_data, block, window, full_screen, screen_info):
     block_data = []
 
     for i, trial in enumerate(conditions):
+        # Get trigger ids for the current trial type
+        trial_type = f"{trial['v_trailing']}_{trial['v_pred']}_{trial['a_trailing']}_{trial['a_pred']}"
+        trial_start_trigger =f"{trial_type}_trial_start"
+        cue_onset_trigger = f"{trial_type}_cue_onset"
+        isi_trigger = f"{trial_type}_isi"
+        target_onset_trigger = f"{trial_type}_target_onset"
+        response_trigger = f"{trial_type}_response"
+
         if i == 0:
             fixation_color = COLOR  # set the fixation color. In subsequent trials, the fixation color will be updated based on the response to provide feedback
         else: 
@@ -161,7 +169,7 @@ def learning_phase(participant_data, block, window, full_screen, screen_info):
         # ====== Inter trial interval ==========
         iti_duration = random.uniform(*STIM_INFO["iti_range"])
         interval = Interval(duration=iti_duration)  # This allows to init a time counter of duration
-        send_trigger("ITI")
+        send_trigger(trial_start_trigger) # send trigger for the start of the trial
         interval.reset()  # This allows to reset the time counter
         draw_fixation(fixation_color)  # draw the fixation dot with feedback color
         window.flip()
@@ -178,7 +186,7 @@ def learning_phase(participant_data, block, window, full_screen, screen_info):
         interval.wait()  # Waits for the remaining time of the interval
 
         # presentation
-        send_trigger("stimulus")
+        send_trigger(cue_onset_trigger) # send trigger for the leading stimulus
         leading_tone.play()  # play the leading tone
         window.flip()  # Flips the window to show the pre-loaded gabor
         timestamp_dicts["start_leading"] = trial_clock.time()
@@ -187,7 +195,7 @@ def learning_phase(participant_data, block, window, full_screen, screen_info):
         # ======= ISI ========
         interval = Interval(duration=STIM_INFO["isi_duration"])
         interval.reset()
-        send_trigger("ISI")
+        send_trigger(isi_trigger) # send trigger for the ISI)
         draw_fixation(fixation_color)
         window.flip()
         timestamp_dicts["start_isi"] = trial_clock.time()
@@ -202,7 +210,7 @@ def learning_phase(participant_data, block, window, full_screen, screen_info):
         interval.wait()
 
         # presentation
-        send_trigger("stimulus")
+        send_trigger(target_onset_trigger) # send trigger for the trailing stimulus
         trailing_tone.play()
         window.flip()
         timestamp_dicts["start_trailing"] = trial_clock.time()
@@ -210,8 +218,7 @@ def learning_phase(participant_data, block, window, full_screen, screen_info):
 
         # ======= Response ========
         timestamp_dicts["start_response"] = trial_clock.time()
-        send_trigger("response")
-        response = learning_response(window, key_mapping, trial)
+        response = learning_response(window, key_mapping, trial, response_trigger)
         timestamp_dicts["end_trial"] = trial_clock.time()
         block_data.append(
             {
@@ -243,6 +250,13 @@ def test_phase(participant_data, block, window, full_screen, screen_info):
     block_data = []
 
     for i, trial in enumerate(conditions):
+        # Get trigger ids for the current trial type
+        trial_type = f"{trial['v_trailing']}_{trial['v_pred']}_{trial['a_trailing']}_{trial['a_pred']}"
+        trial_start_trigger =f"{trial_type}_trial_start"
+        cue_onset_trigger = f"{trial_type}_cue_onset"
+        isi_trigger = f"{trial_type}_isi"
+        target_onset_trigger = f"{trial_type}_target_onset"
+        response_trigger = f"{trial_type}_response"
         if i == 0: # first trial of the block
             fixation_color = COLOR  # set the fixation color. In subsequent trials, the fixation color will be updated based on the response to provide feedback
 
@@ -268,7 +282,7 @@ def test_phase(participant_data, block, window, full_screen, screen_info):
         # ====== Inter trial interval ==========
         iti_duration = random.uniform(*STIM_INFO["iti_range"])
         interval = Interval(duration=iti_duration)  # This allows to init a time counter of duration
-        send_trigger("ITI")
+        send_trigger(trial_start_trigger) # send trigger for the start of the trial
         interval.reset()  # This allows to reset the time counter
         draw_fixation(fixation_color)  # draw the fixation dot with feedback color
         window.flip()
@@ -285,7 +299,7 @@ def test_phase(participant_data, block, window, full_screen, screen_info):
         interval.wait()  # Waits for the remaining time of the interval
 
         # presentation
-        send_trigger("stimulus")
+        send_trigger(cue_onset_trigger) # send trigger for the leading stimulus
         leading_tone.play()  # play the leading tone
         window.flip()  # Flips the window to show the pre-loaded gabor
         timestamp_dicts["start_leading"] = trial_clock.time()
@@ -296,7 +310,7 @@ def test_phase(participant_data, block, window, full_screen, screen_info):
         interval.reset()
         draw_fixation(fixation_color)
         window.flip()
-        send_trigger("ISI")
+        send_trigger(isi_trigger) # send trigger for the ISI)
         timestamp_dicts["start_isi"] = trial_clock.time()
 
         # ======= Trailing stimuli ========
@@ -313,7 +327,7 @@ def test_phase(participant_data, block, window, full_screen, screen_info):
         interval.wait()
 
         # presentation
-        send_trigger("stimulus")
+        send_trigger(target_onset_trigger) # send trigger for the trailing stimulus
         trailing_tone.play()
         window.flip()
         timestamp_dicts["start_trailing"] = trial_clock.time()
@@ -321,8 +335,7 @@ def test_phase(participant_data, block, window, full_screen, screen_info):
 
         # ======= Response ========
         timestamp_dicts["start_response"] = trial_clock.time()
-        send_trigger("response")
-        response = test_response(window, key_mapping, trial)
+        response = test_response(window, key_mapping, trial, response_trigger)
         timestamp_dicts["end_trial"] = trial_clock.time()
 
         # --- Update the staircase if this is a target trial ---
