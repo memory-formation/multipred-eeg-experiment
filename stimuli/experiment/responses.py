@@ -46,7 +46,7 @@ def localizer_response(window, target_modality, target):
     }
 
 
-def learning_response(window, key_mapping, trial, response_trigger):
+def learning_response(window, key_mapping, trial, response_trigger, context):
     text_widget = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR)
     text_widget.text = f"< {key_mapping['LEFT']}    neutral    {key_mapping['RIGHT']} >"
     text_widget.draw()
@@ -54,7 +54,7 @@ def learning_response(window, key_mapping, trial, response_trigger):
     window.flip()
     clock.reset()  # This allows to reset the clock
     key_event = window.wait_key(["SPACE", "LEFT", "RIGHT"], clock=clock, max_wait=2)
-    send_trigger(response_trigger)  # Send the response trigger
+    send_trigger(response_trigger, context)  # Send the response trigger
     reaction_time = key_event.timestamp
     pressed_key = key_event.key
 
@@ -83,7 +83,7 @@ def learning_response(window, key_mapping, trial, response_trigger):
     }
 
 
-def test_response(window, key_mapping, trial, response_trigger):
+def test_response(window, key_mapping, trial, response_trigger, context):
 
     text_widget = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR)
     text_widget.text = f"< {key_mapping['LEFT']}            {key_mapping['RIGHT']} >"
@@ -92,7 +92,7 @@ def test_response(window, key_mapping, trial, response_trigger):
     window.flip()
     clock.reset()  # This allows to reset the clock
     key_event = window.wait_key(["LEFT", "RIGHT"], clock=clock, max_wait=2)
-    send_trigger(response_trigger)  # Send the response trigger
+    send_trigger(response_trigger, context)  # Send the response trigger
     reaction_time = key_event.timestamp
     pressed_key = key_event.key
 

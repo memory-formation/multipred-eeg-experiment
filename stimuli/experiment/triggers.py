@@ -26,10 +26,13 @@ def get_trigger():
         TRIGGER = trigger
     return TRIGGER
 
-def send_trigger(trigger_type):
+
+def send_trigger(trigger_type, context=None):
     trigger = get_trigger()
     trigger.send(trigger_type)
-    logger.info("Trigger sent: %s", trigger_type)
+
+    context_info = f" | Context: {context}" if context else ""
+    logger.info(f"Trigger sent: {trigger_type}{context_info}")
 
 
 

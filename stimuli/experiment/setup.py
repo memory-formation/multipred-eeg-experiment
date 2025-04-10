@@ -1,16 +1,14 @@
 import datetime
 import json
-from pathlib import Path
+import logging
 import random
-
-
+from pathlib import Path
 
 from psychos import Window
 from psychos.gui import Dialog
 
 from .constants import BACKGROUND_COLOR, DATA_FOLDER, PHASES, SCREENS
 
-import random
 
 def generate_localizer_sequences(block_modality="visual", target_modality="visual"):
     """
@@ -279,7 +277,7 @@ def setup():
     data_folder = Path(DATA_FOLDER)
     data_folder.mkdir(exist_ok=True)  # Create data folder if it does not exist
 
-    # Initial dialog to check participant ID
+    # ========= Initial dialog to check participant ID ==========
     dialog1 = Dialog(title="Participant Info")
     dialog1.add_field(name="participant", default="01", label="Participant ID", format=int)
     data = dialog1.show()
@@ -290,9 +288,27 @@ def setup():
     participant_folder = data_folder / participant_id
     participant_folder.mkdir(exist_ok=True)  # Create participant folder
 
-    participant_info_path = participant_folder / f"{participant_id}_info.json"
+    # ========= Set up logging ==========
+    # Create a log file for the participant
+    log_file = participant_folder / f"{participant_id}_triggers.log"
 
+    # Set up root logger
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+
+    # Clear existing handlers to avoid duplicate logs
+    if logger.hasHandlers():
+        logger.handlers.clear()
+
+    # File handler
+    file_handler = logging.FileHandler(log_file, mode='a', encoding='utf-8')
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
+
+    # ======= Create or load participant info ========
     #  Check if participant data already exists
+    participant_info_path = participant_folder / f"{participant_id}_info.json"
     if not participant_info_path.exists():
         # Second dialog to collect demographic info
         dialog2 = Dialog(title="Demographic Information")
