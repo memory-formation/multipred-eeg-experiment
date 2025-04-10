@@ -23,6 +23,7 @@ def localizer_phase(participant_data, block, window, full_screen, screen_info):
     block_data = []
 
     for i, trial in enumerate(conditions):
+        context = f"Trial {i+1}, Block {block}, localizer phase" # context for trigger logs
         if i == 0:
             fixation_color = COLOR  # set the fixation color. In subsequent trials, the fixation color will be updated based on the response to provide feedback
         else: 
@@ -39,7 +40,7 @@ def localizer_phase(participant_data, block, window, full_screen, screen_info):
         # ====== Inter trial interval ==========
         iti_duration = random.uniform(*STIM_INFO["iti_range"])
         interval = Interval(duration=iti_duration)  # This allows to init a time counter of duration
-        send_trigger("ITI")
+        send_trigger("loc_start", context) # send trigger for the start of the trial
         interval.reset()  # This allows to reset the time counter
         draw_fixation(fixation_color)  # draw the fixation dot with feedback color
         window.flip()
@@ -69,7 +70,7 @@ def localizer_phase(participant_data, block, window, full_screen, screen_info):
                 tone = create_puretone(
                     frequency=auditory_freq, duration=STIM_INFO["leading_duration"], amplitude=amplitude
                 )
-                draw_gabor(visual_ori, contrast) # Preload gabor
+                draw_gabor(visual_ori, screen_info, contrast) # Preload gabor
                 draw_fixation(fixation_color) # Preload fixation
 
             elif block_modality == "auditory":
@@ -97,7 +98,7 @@ def localizer_phase(participant_data, block, window, full_screen, screen_info):
                 draw_fixation(fixation_color) # Preload fixation
 
             interval.wait()  # Waits for the remaining time of the interval
-            send_trigger("stimulus") 
+            send_trigger(f"{visual_ori}_{auditory_freq}", context) # send trigger for the leading stimulus
             #send_trigger(f"{auditory_freq}_{visual_ori}") # More specific triggers?
             tone.play()  # play the leading tone
             window.flip()  # Flips the window to show the pre-loaded gabor
@@ -106,15 +107,14 @@ def localizer_phase(participant_data, block, window, full_screen, screen_info):
             # ======= ISI ========
             interval = Interval(duration=STIM_INFO["isi_duration"])
             interval.reset()
-            send_trigger("ISI")
+            send_trigger("loc_isi", context) # send trigger for the ISI
             draw_fixation(fixation_color)
             window.flip()
             timestamp_dicts["start_isi"] = trial_clock.time()
         
         # ======= Response ========
         timestamp_dicts["start_response"] = trial_clock.time()
-        send_trigger("response")
-        response = localizer_response(window, target_modality, trial["target"])
+        response = localizer_response(window, target_modality, trial["target"], context)
         timestamp_dicts["end_trial"] = trial_clock.time()
         block_data.append(
             {

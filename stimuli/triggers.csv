@@ -1,3 +1,4 @@
+Learning and test triggers,,,,,
 ,trial_start,cue_onset,isi,target_onset,response_onset
 45_EXP_100_EXP,1,25,49,73,97
 45_EXP_100_UEX,2,26,50,74,98
@@ -23,3 +24,10 @@
 135_neutral_100_UEX,22,46,70,94,118
 135_neutral_160_EXP,23,47,71,95,119
 135_neutral_160_UEX,24,48,72,96,120
+,,,,,
+Localizer triggers,,,,,
+localizer_isi,121,,,,
+45_100,122,,,,
+45_160,123,,,,
+135_100,124,,,,
+135_160,125,,,,

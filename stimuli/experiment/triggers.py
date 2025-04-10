@@ -14,12 +14,12 @@ logger.setLevel(logging.INFO)
 def get_trigger():
     """Get the trigger object."""
     global TRIGGER # Avoid re-initializing the trigger if it already exists
-    from experiment.constants import TRIGGERS_MAIN # Import here to avoid circular import issues
+    from experiment.constants import TRIGGER_MAPPING # Import here to avoid circular import issues
     if TRIGGER is None:
         # port = ParallelPort(address="0x378")
         # port = SerialPort(address="COM3", baudrate=115200)
         port = DummyPort()
-        trigger = StepTrigger(port=port, mapping=TRIGGERS_MAIN) # StepTrigger does not introduce any delay in the experiment timings
+        trigger = StepTrigger(port=port, mapping=TRIGGER_MAPPING) # StepTrigger does not introduce any delay in the experiment timings
         #trigger = DelayTrigger(port=port, mapping=TRIGGER_MAPPING, delay=0.01) 
         
         logger.info("Trigger initialized: %s", trigger)
@@ -68,4 +68,15 @@ def generate_triggers(condition_dict):
         triggers[f"{trial_type}_target_onset"] = i + 3 * num_triggers
         triggers[f"{trial_type}_response"] = i + 4 * num_triggers
 
-    return triggers
+    highest_trigger = max(triggers.values()) # Get the highest trigger number
+    localizer_triggers = {
+    "loc_start": highest_trigger + 1, 
+    "loc_isi": highest_trigger + 2,
+    "45_100": highest_trigger + 3,
+    "45_160": highest_trigger + 4,
+    "135_100": highest_trigger + 5,
+    "135_160": highest_trigger + 6,
+    "loc_response": highest_trigger + 7,
+    }
+
+    return triggers | localizer_triggers

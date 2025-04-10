@@ -18,7 +18,8 @@ DATA_FOLDER = "data"
 # Constants for the experiment setup
 PHASES = {
     "localizer_trials": 10,
-    "localizer_blocks": ["auditory", "visual"], # another option is ["multimodal", "multimodal"]
+    "localizer_blocks": ["multimodal", "multimodal"], # can be "visual", "auditory" or "multimodal"
+    "localizer_targets": ["visual", "visual"], # When blocks are multimodal, this will define the target modality
     "learning_blocks": 2,
     "test_blocks": 2,
     "explicit_blocks": 2,
@@ -76,9 +77,9 @@ CONDITIONS_MAIN = { # Define conditions in the test and learning phases
     "a_stimulus": [100, 160],
     "a_pred_cond": ["EXP", "UEX"],
 }
-TRIGGERS_MAIN = generate_triggers(CONDITIONS_MAIN) # Generate dictionary that assigns trigger numbers to each trial type and event
-    
-    
+
+TRIGGER_MAPPING = generate_triggers(CONDITIONS_MAIN) # Generate dictionary that assigns trigger numbers to each trial type and event
+
 # Instructions for the different blocks and phases
 INSTRUCTIONS_TEXT = {
     "localizer_start": [

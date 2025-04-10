@@ -7,7 +7,7 @@ from psychos.core import Clock
 from psychos.visual import Text
 
 
-def localizer_response(window, target_modality, target):
+def localizer_response(window, target_modality, target, context):
     text_widget = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR)
     if target_modality == "visual":
         text_widget.text = f"Press SPACE if you saw a weak stimulus"
@@ -19,6 +19,7 @@ def localizer_response(window, target_modality, target):
     window.flip()
     clock.reset()  # This allows to reset the clock
     key_event = window.wait_key(["SPACE"], clock=clock, max_wait=2)
+    send_trigger("loc_response", context)  # Send the response trigger
     reaction_time = key_event.timestamp
     pressed_key = key_event.key
 
