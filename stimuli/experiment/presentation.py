@@ -25,7 +25,18 @@ def draw_fixation(fixation_color):
     text_widget.draw()
 
 
-def visual_angle_to_pixels(angle_deg, distance_cm, screen_width_cm, screen_width_px):
+def visual_angle_to_pixels(angle_deg, distance_cm, screen_width_cm, screen_width_px, sf=None):
+    """
+    Convert visual angle in degrees to pixels on the screen.
+    :param angle_deg: Visual angle in degrees.
+    :param distance_cm: Distance from the observer to the screen in cm.
+    :param screen_width_cm: Width of the screen in cm.
+    :param screen_width_px: Width of the screen in pixels.
+    :param spatial_frequency: Spatial frequency in cycles per degree. If none it defaults to constant (2.4 cpd)
+    """
+    if sf is None:
+        sf = GABOR_PARAMS["spatial_frequency"]
+
     # Convert angle to radians
     angle_rad = np.deg2rad(angle_deg)
     
@@ -38,7 +49,7 @@ def visual_angle_to_pixels(angle_deg, distance_cm, screen_width_cm, screen_width
     # Convert physical size to pixels
     size_px = size_cm * px_per_cm
 
-    spatial_frequency = GABOR_PARAMS["spatial_frequency"] * angle_deg  # Adjust spatial frequency based on size
+    spatial_frequency = sf * angle_deg  # Adjust spatial frequency based on size
 
     return int(round(size_px)), spatial_frequency
 
@@ -46,7 +57,9 @@ def visual_angle_to_pixels(angle_deg, distance_cm, screen_width_cm, screen_width
 
 def generate_neutral_gabor(screen_info):
     if GABOR_PARAMS["units"] == "deg":
-        size, spatial_frequency = visual_angle_to_pixels(GABOR_PARAMS["size"], screen_info["distance_cm"], screen_info["screen_width_cm"], screen_info["screen_width_px"])
+        size, spatial_frequency = visual_angle_to_pixels(
+            GABOR_PARAMS["size"], screen_info["distance_cm"], screen_info["screen_width_cm"], screen_info["screen_width_px"]
+            )
     else:
         size = 256 # default to percentage of screen width
         spatial_frequency = 20  # Adjust spatial frequency based on size
@@ -70,12 +83,22 @@ def generate_neutral_gabor(screen_info):
 
 
 
-def draw_gabor(orientation, screen_info, contrast=None):
+def draw_gabor(orientation, screen_info, contrast=None, spatial_frequency=None):
+    """
+    Draw a Gabor patch on the screen.
+    :param orientation: Orientation of the Gabor in degrees.
+    :param screen_info: Dictionary containing screen information (distance, width, etc.).
+    :param contrast: Contrast of the Gabor. If None, it will use the default from GABOR_PARAMS.
+    :param spatial_frequency: Spatial frequency of the Gabor. If None, it will use the default from GABOR_PARAMS.
+    """
+
     if contrast is None:
         contrast = GABOR_PARAMS["contrast"]
 
     if GABOR_PARAMS["units"] == "deg":
-        size, spatial_frequency = visual_angle_to_pixels(GABOR_PARAMS["size"], screen_info["distance_cm"], screen_info["screen_width_cm"], screen_info["screen_width_px"])
+        size, spatial_frequency = visual_angle_to_pixels(
+            GABOR_PARAMS["size"], screen_info["distance_cm"], screen_info["screen_width_cm"], screen_info["screen_width_px"], spatial_frequency
+            )
     else:
         size = "50vw" # default to percentage of screen width
         spatial_frequency = 20  # Adjust spatial frequency based on size

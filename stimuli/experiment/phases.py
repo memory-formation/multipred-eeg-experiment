@@ -1,8 +1,9 @@
 import random
 from datetime import datetime
 
-from experiment.constants import (COLOR, INITIAL_STAIRCASE, INSTRUCTIONS_TEXT,
-                                  ISOTONIC_SOUNDS, STAIRCASE_PARAMS, STIM_INFO)
+from experiment.constants import (COLOR, GABOR_PARAMS, INITIAL_STAIRCASE,
+                                  INSTRUCTIONS_TEXT, ISOTONIC_SOUNDS,
+                                  STAIRCASE_PARAMS, STIM_INFO)
 from experiment.presentation import (create_puretone, draw_fixation,
                                      draw_gabor, show_instructions)
 from experiment.responses import (explicit_response, learning_response,
@@ -51,55 +52,52 @@ def localizer_phase(participant_data, block, window, full_screen, screen_info):
             # pre-load stimuli
             fixation_color = COLOR  # reset the fixation color to the default color for the ISI
             if block_modality == "multimodal":
-                # Checking for visual or audiotry target, and setting the amplitude and contrast accordingl
+                # Checking for visual or audiotry target, and setting the amplitude and spatial frequency accordingly
                 if target_modality == "auditory":
                     if target == 1:
                         amplitude = ISOTONIC_SOUNDS[auditory_freq] * 0.2 # half the amplitude of sound
-                        contrast = 1 # keep the contrast of the gabor
+                        spatial_frequency = GABOR_PARAMS["spatial_frequency"] # default
                     else:
                         amplitude = ISOTONIC_SOUNDS[auditory_freq] 
-                        contrast = 1
+                        spatial_frequency = GABOR_PARAMS["spatial_frequency"] # default
                 else: # target modality visual
                     if target == 1:
                         amplitude = ISOTONIC_SOUNDS[auditory_freq] 
-                        contrast = 0.5 # half the contrast of the gabor
+                        spatial_frequency = GABOR_PARAMS["spatial_frequency"] * 0.75 # reduce the spatial frequency of the gabor
                     else:
                         amplitude = ISOTONIC_SOUNDS[auditory_freq] 
-                        contrast = 1
+                        spatial_frequency = GABOR_PARAMS["spatial_frequency"] # default
 
                 tone = create_puretone(
                     frequency=auditory_freq, duration=STIM_INFO["leading_duration"], amplitude=amplitude
                 )
-                draw_gabor(visual_ori, screen_info, contrast) # Preload gabor
+                draw_gabor(visual_ori, screen_info, spatial_frequency=spatial_frequency) # Preload gabor
                 draw_fixation(fixation_color) # Preload fixation
 
             elif block_modality == "auditory":
                 if target == 1:
                     amplitude = ISOTONIC_SOUNDS[auditory_freq] * 0.2
-                    contrast = 0 # no contrast for the gabor
                 else:
                     amplitude = ISOTONIC_SOUNDS[auditory_freq] 
-                    contrast = 0
-
                 tone = create_puretone(
                     frequency=auditory_freq, duration=STIM_INFO["leading_duration"], amplitude=amplitude
                 )
                 draw_fixation(fixation_color) # Preload fixation
+
             else: # visual
                 if target == 1:
-                    contrast = 0.2
+                    spatial_frequency = GABOR_PARAMS["spatial_frequency"] * 0.75 # reduce the spatial frequency of the gabor
                 else:
-                    contrast = 1
+                    spatial_frequency = GABOR_PARAMS["spatial_frequency"] # default
                     
                 tone = create_puretone(
                     frequency=auditory_freq, duration=STIM_INFO["leading_duration"], amplitude=0 # No sound in visual block
                 )
-                draw_gabor(visual_ori, screen_info, contrast)
+                draw_gabor(visual_ori, screen_info, spatial_frequency=spatial_frequency) # Preload gabor
                 draw_fixation(fixation_color) # Preload fixation
 
             interval.wait()  # Waits for the remaining time of the interval
             send_trigger(f"{visual_ori}_{auditory_freq}", context) # send trigger for the leading stimulus
-            #send_trigger(f"{auditory_freq}_{visual_ori}") # More specific triggers?
             tone.play()  # play the leading tone
             window.flip()  # Flips the window to show the pre-loaded gabor
             timestamp_dicts["start_leading"] = trial_clock.time()
