@@ -112,7 +112,7 @@ def localizer_phase(participant_data, block, window, full_screen, screen_info):
         
         # ======= Response ========
         timestamp_dicts["start_response"] = trial_clock.time()
-        response = localizer_response(window, target_modality, trial["target"], context)
+        response = localizer_response(window, target_modality, trial["target_count"], context)
         timestamp_dicts["end_trial"] = trial_clock.time()
         block_data.append(
             {

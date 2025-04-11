@@ -25,21 +25,30 @@ def generate_localizer_sequences(block_modality="visual", target_modality="visua
         visual_stimuli = [stim[0] for stim in stimuli] # extract the visual stimuli
         auditory_stimuli = [stim[1] for stim in stimuli] # extract the auditory stimuli
 
-        target_sequence = [0] * len(visual_stimuli) # create a sequence of zeros and ones for the target
+        target_sequence = [0] * len(visual_stimuli) # create a sequence of zeros and randomly add ones to mark targets
 
-        if random.choice([True, False]): # on some trials we have a target
-            target = 1
-            target_sequence[0] = 1 # placing the target and shuffling it
-            random.shuffle(target_sequence)
+        p = random.random()
+        if p < 0.5:
+            target_count = 0  # No targets
+        elif p < 0.85:
+            # One target
+            idx = random.randint(0, len(target_sequence) - 1)
+            target_sequence[idx] = 1
+            target_count = 1
         else:
-            target = 0
+            # Multiple targets (2 or 3)
+            target_count = random.choice([2, 3])
+            indices = random.sample(range(len(target_sequence)), target_count)
+            for idx in indices:
+                target_sequence[idx] = 1
+
 
         # Create a trial with the randomized stimuli
         trial_data = {
             "visual_sequence": visual_stimuli,
             "auditory_sequence": auditory_stimuli,
             "target_sequence": target_sequence,
-            "target": target,
+            "target_count": target_count,
             "block_modality": [block_modality] * len(visual_stimuli),
             "target_modality": [target_modality] * len(visual_stimuli),
         }
