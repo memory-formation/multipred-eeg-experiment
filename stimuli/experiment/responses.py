@@ -159,7 +159,7 @@ def explicit_response(window, key_mapping, trial):
 
 
 
-def staircase(last_outcome, ori_diff, inversions_count, last_direction, history, step_size, step_size_list, step_update):
+def staircase(last_outcome, ori_diff, inversions_count, last_direction, history, step_size, step_size_list, step_update, max_diff):
     """
     Adapative staircase procedure to adapt the difficulty of the task to the participant's performance.
     After three correct responses, the orientation difference (ori_diff) is decreased (more difficult).
@@ -186,14 +186,14 @@ def staircase(last_outcome, ori_diff, inversions_count, last_direction, history,
         step_size = step_size_list[3]
 
     if last_outcome == 0:
-        if ori_diff + step_size <= 30:
+        if ori_diff + step_size <= max_diff: # Check if the new ori_diff is within the allowed range
             ori_diff += step_size  # If last target was incorrect increase ori_diff
             history = 0
             if last_direction == "down":
                 inversions_count += 1
             last_direction = "up"
         else:
-            ori_diff = ori_diff
+            ori_diff = max_diff  # If the new ori_diff is greater than max_diff, set it to max_diff
     else:
         history += 1
         if history == 3:

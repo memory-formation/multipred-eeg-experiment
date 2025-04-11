@@ -52,6 +52,7 @@ INITIAL_STAIRCASE = { # Intiial values for the staircase, same for all partiicpa
 STAIRCASE_PARAMS = { # Parameters to control how the staircase adapts to performance
     "step_size_list": [6, 4, 2, 1], # How much ori_diff is updated after a given number of inversions
     "step_update": [2, 4, 8], # After how manny inversions the step size is updated
+    "max_diff": 20, # Maximum orientation difference allowed for diagonal targets. Greater than 22.5 would be closer to cardinal orientations
 }
 
 GABOR_PARAMS = {
