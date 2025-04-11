@@ -41,7 +41,7 @@ def localizer_phase(participant_data, block, window, full_screen, screen_info):
         # ====== Inter trial interval ==========
         iti_duration = random.uniform(*STIM_INFO["iti_range"])
         interval = Interval(duration=iti_duration)  # This allows to init a time counter of duration
-        send_trigger("loc_start", context) # send trigger for the start of the trial
+        send_trigger("loc_trial_start", context) # send trigger for the start of the trial
         interval.reset()  # This allows to reset the time counter
         draw_fixation(fixation_color)  # draw the fixation dot with feedback color
         window.flip()
@@ -97,7 +97,7 @@ def localizer_phase(participant_data, block, window, full_screen, screen_info):
                 draw_fixation(fixation_color) # Preload fixation
 
             interval.wait()  # Waits for the remaining time of the interval
-            send_trigger(f"{visual_ori}_{auditory_freq}", context) # send trigger for the leading stimulus
+            send_trigger(f"loc_{visual_ori}_{auditory_freq}", context) # send trigger for the leading stimulus
             tone.play()  # play the leading tone
             window.flip()  # Flips the window to show the pre-loaded gabor
             timestamp_dicts["start_leading"] = trial_clock.time()
@@ -375,6 +375,14 @@ def explicit_phase(participant_data, block, window, full_screen, screen_info):
     block_data = []
 
     for i, trial in enumerate(conditions):
+        # Get trigger ids for the current trial type
+        if conditions["modality"] == "auditory":
+            trial_type = f"explicit_{trial['a_trailing']}_{trial['a_pred']}"
+            context = f"Trial {i+1}, Block {block} (auditory), explicit phase" # context for trigger logs
+        else:
+            trial_type = f"explicit_{trial['v_trailing']}_{trial['v_pred']}"
+            context = f"Trial {i+1}, Block {block} (visual), explicit phase" # context for trigger logs
+        
         if i == 0:
             fixation_color = COLOR  # set the fixation color. In subsequent trials, in this phase there is no feedback so it won't be updated
         
@@ -389,10 +397,10 @@ def explicit_phase(participant_data, block, window, full_screen, screen_info):
         # ====== Inter trial interval ==========
         iti_duration = random.uniform(*STIM_INFO["iti_range"])
         interval = Interval(duration=iti_duration)  # This allows to init a time counter of duration
+        send_trigger(f"{trial_type}_trial_start", context) # send trigger for the start of the trial
         interval.reset()  # This allows to reset the time counter
         draw_fixation(fixation_color)  # draw the fixation dot with feedback color
         window.flip()
-        #send_trigger("ITI")
         timestamp_dicts["start_fixation"] = trial_clock.time()
 
         # ======= Leding stimuli ========
@@ -408,7 +416,7 @@ def explicit_phase(participant_data, block, window, full_screen, screen_info):
         interval.wait()  
 
         # presentation
-        #send_trigger("stimulus")
+        send_trigger(f"{trial_type}_cue_onset", context) # send trigger for the leading stimulus
         if trial["modality"] == "auditory": leading_tone.play()  # play the leading tone only in auditory block
         window.flip()  # Flips the window to show the pre-loaded gabor and fixation
         timestamp_dicts["start_leading"] = trial_clock.time()
@@ -419,7 +427,7 @@ def explicit_phase(participant_data, block, window, full_screen, screen_info):
         interval.reset()
         draw_fixation(fixation_color)
         window.flip()
-        #send_trigger("ISI")
+        send_trigger(f"{trial_type}_isi", context) # send trigger for the ISI)
         timestamp_dicts["start_isi"] = trial_clock.time()
 
         # ======= Trailing stimuli ========
@@ -435,7 +443,7 @@ def explicit_phase(participant_data, block, window, full_screen, screen_info):
         interval.wait()
 
         # presentation
-        #send_trigger("stimulus")
+        send_trigger(f"{trial_type}_target_onset", context) # send trigger for the trailing stimulus
         if trial["modality"] == "auditory": trailing_tone.play()  # play the leading tone only in auditory block
         window.flip()
         timestamp_dicts["start_trailing"] = trial_clock.time()
@@ -444,7 +452,7 @@ def explicit_phase(participant_data, block, window, full_screen, screen_info):
         # ======= Response ========
         timestamp_dicts["start_response"] = trial_clock.time()
         #send_trigger("response")
-        response = explicit_response(window, key_mapping, trial)
+        response = explicit_response(window, key_mapping, trial, f"{trial_type}_response", f"{trial_type}_confidence", context)
         timestamp_dicts["end_trial"] = trial_clock.time()
         block_data.append(
             {

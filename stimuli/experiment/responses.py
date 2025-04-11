@@ -120,7 +120,7 @@ def test_response(window, key_mapping, trial, response_trigger, context):
     }
 
 
-def explicit_response(window, key_mapping, trial):
+def explicit_response(window, key_mapping, trial, response_trigger, confidence_trigger, context):
 
     text_widget = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR)
     text_widget.text = f"< {key_mapping['LEFT']}            {key_mapping['RIGHT']} >"
@@ -129,6 +129,7 @@ def explicit_response(window, key_mapping, trial):
     window.flip()
     clock.reset()  # This allows to reset the clock
     key_event1 = window.wait_key(["LEFT", "RIGHT"], clock=clock, max_wait=60)
+    send_trigger(response_trigger, context)  # Send the response trigger
     reaction_time = key_event1.timestamp
     pressed_key1 = key_event1.key if key_event1 else None
     response = key_mapping.get(pressed_key1, "NA")
@@ -173,9 +174,8 @@ def explicit_response(window, key_mapping, trial):
         rating5_text.draw()
         window.flip()
         clock.reset()  # Reset the clock for the confidence rating
-        key_event2 = window.wait_key(
-            ["1", "2", "3", "4", "5"], clock=clock, max_wait=60
-        )
+        key_event2 = window.wait_key(["1", "2", "3", "4", "5"], clock=clock, max_wait=60)
+        send_trigger(confidence_trigger, context)  # Send the confidence trigger
         confidence = key_event2.key if key_event2 else None
         confidence_RT = key_event2.timestamp 
 

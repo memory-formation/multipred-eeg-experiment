@@ -48,8 +48,8 @@ def generate_triggers(condition_dict):
     Returns:
         triggers (dict): A dictionary with trial_type + event as strings as keys and trigger numbers as values.
     """
+    # ===== TRIGGERS FOR LERNING AND TEST PHASES =====
     # Extract all factor names and corresponding level lists
-    factor_names = list(condition_dict.keys())
     level_lists = list(condition_dict.values())
 
     # Compute all combinations (Cartesian product)
@@ -58,9 +58,8 @@ def generate_triggers(condition_dict):
     
     triggers = {}
     for i, levels in enumerate(combinations, start=1):
-        # Create trial_type string
         trial_type = "_".join(str(level) for level in levels)
-        
+    
         # Define sub-dictionary with trigger structure
         triggers[f"{trial_type}_trial_start"] = i 
         triggers[f"{trial_type}_cue_onset"] = i + num_triggers
@@ -68,15 +67,66 @@ def generate_triggers(condition_dict):
         triggers[f"{trial_type}_target_onset"] = i + 3 * num_triggers
         triggers[f"{trial_type}_response"] = i + 4 * num_triggers
 
+    # ===== TRIGGERS FOR EXPLICIT PHASE =====
+    # visual block conditions
+    visual_explicit_conditions = {
+        "v_stimulus": ["45", "135"],
+        "v_pred_cond": ["EXP", "UEX"],
+        }
+    # auditory block conditions
+    auditory_explicit_conditions = {
+        "a_stimulus": ["100", "160"],
+        "a_pred_cond": ["EXP", "UEX"],
+        }
+    
+    # Adding visual explicit triggers
+    # Extract all factor names and corresponding level lists
+    visual_level_lists = list(visual_explicit_conditions.values())
+    # Compute all combinations (Cartesian product)  
+    visual_combinations = list(product(*visual_level_lists))
+    visual_num_triggers = len(visual_combinations)
+
+    for i, levels in enumerate(visual_combinations, start= max(triggers.values()) + 1): 
+        trial_type = "_".join(str(level) for level in levels)
+    
+        # Define sub-dictionary with trigger structure
+        triggers[f"explicit_{trial_type}_trial_start"] = i 
+        triggers[f"explicit_{trial_type}_cue_onset"] = i + visual_num_triggers
+        triggers[f"explicit_{trial_type}_isi"] = i + 2 * visual_num_triggers
+        triggers[f"explicit_{trial_type}_target_onset"] = i + 3 * visual_num_triggers
+        triggers[f"explicit_{trial_type}_response"] = i + 4 * visual_num_triggers
+        triggers[f"explicit_{trial_type}_confidence"] = i + 5 * visual_num_triggers
+
+
+    # Adding auditory explicit triggers
+    # Extract all factor names and corresponding level lists
+    auditory_level_lists = list(auditory_explicit_conditions.values())
+    # Compute all combinations (Cartesian product)  
+    auditory_combinations = list(product(*auditory_level_lists))
+    auditory_num_triggers = len(auditory_combinations)
+
+    for i, levels in enumerate(auditory_combinations, start= max(triggers.values()) + 1):
+        trial_type = "_".join(str(level) for level in levels)
+
+        # Define sub-dictionary with trigger structure
+        triggers[f"explicit_{trial_type}_trial_start"] = i
+        triggers[f"explicit_{trial_type}_cue_onset"] = i + auditory_num_triggers
+        triggers[f"explicit_{trial_type}_isi"] = i + 2 * auditory_num_triggers
+        triggers[f"explicit_{trial_type}_target_onset"] = i + 3 * auditory_num_triggers
+        triggers[f"explicit_{trial_type}_response"] = i + 4 * auditory_num_triggers
+        triggers[f"explicit_{trial_type}_confidence"] = i + 5 * auditory_num_triggers
+    
+
+    # ===== TRIGGERS FOR LOCALIZER PHASE =====
     highest_trigger = max(triggers.values()) # Get the highest trigger number
     localizer_triggers = {
     "loc_start": highest_trigger + 1, 
     "loc_isi": highest_trigger + 2,
-    "45_100": highest_trigger + 3,
-    "45_160": highest_trigger + 4,
-    "135_100": highest_trigger + 5,
-    "135_160": highest_trigger + 6,
+    "loc_45_100": highest_trigger + 3,
+    "loc_45_160": highest_trigger + 4,
+    "loc_135_100": highest_trigger + 5,
+    "loc_135_160": highest_trigger + 6,
     "loc_response": highest_trigger + 7,
     }
-
-    return triggers | localizer_triggers
+    
+    return triggers | localizer_triggers # Merge dictionaries 
