@@ -376,7 +376,7 @@ def explicit_phase(participant_data, block, window, full_screen, screen_info):
 
     for i, trial in enumerate(conditions):
         # Get trigger ids for the current trial type
-        if conditions["modality"] == "auditory":
+        if trial["modality"] == "auditory":
             trial_type = f"explicit_{trial['a_trailing']}_{trial['a_pred']}"
             context = f"Trial {i+1}, Block {block} (auditory), explicit phase" # context for trigger logs
         else:
