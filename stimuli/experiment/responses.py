@@ -128,33 +128,65 @@ def explicit_response(window, key_mapping, trial):
     clock = Clock()  # This allows to init a clock to measure the RT
     window.flip()
     clock.reset()  # This allows to reset the clock
-    key_event = window.wait_key(["LEFT", "RIGHT"], clock=clock, max_wait=60)
-    reaction_time = key_event.timestamp
-    pressed_key = key_event.key
+    key_event1 = window.wait_key(["LEFT", "RIGHT"], clock=clock, max_wait=60)
+    reaction_time = key_event1.timestamp
+    pressed_key1 = key_event1.key if key_event1 else None
+    response = key_mapping.get(pressed_key1, "NA")
     modality = trial["modality"]
 
-    if pressed_key is None:
+    if pressed_key1 is None:
         outcome = 0
     else:
         if modality == "visual":
             # Check if the response is correct based on the visual modality
             correct_conditions = (
-                key_mapping[pressed_key] == "frequent" and trial["v_pred"] == "EXP"
-            ) or (key_mapping[pressed_key] == "infrequent" and trial["v_pred"] == "UEX")
+                response == "frequent" and trial["v_pred"] == "EXP"
+            ) or (response == "infrequent" and trial["v_pred"] == "UEX")
         else:  # auditory
             # Check if the response is correct based on the auditory modality
             correct_conditions = (
-                key_mapping[pressed_key] == "frequent" and trial["a_pred"] == "EXP"
-            ) or (key_mapping[pressed_key] == "infrequent" and trial["a_pred"] == "UEX")
+                response == "frequent" and trial["a_pred"] == "EXP"
+            ) or (response == "infrequent" and trial["a_pred"] == "UEX")
 
         outcome = 1 if correct_conditions else 0  # saving the outcome of the trial
 
+    # Confidence rating
+    if response != "NA":
+        # Display the confidence rating question
+        question_text = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR, position=(0, -.25))
+        question_text.text = "How confident are you in your response?"
+        rating1_text = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR, position=(-.5, .25))
+        rating1_text.text = "1: not at all"
+        rating2_text = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR, position=(-.25, .25))
+        rating2_text.text = "2: a little"
+        rating3_text = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR, position=(0, .25))
+        rating3_text.text = "3: moderately"
+        rating4_text = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR, position=(.25, .25)) 
+        rating4_text.text = "4: very"
+        rating5_text = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR, position=(.5, .25))
+        rating5_text.text = "5: completely"
+        question_text.draw()
+        rating1_text.draw()
+        rating2_text.draw()
+        rating3_text.draw()
+        rating4_text.draw()
+        rating5_text.draw()
+        window.flip()
+        clock.reset()  # Reset the clock for the confidence rating
+        key_event2 = window.wait_key(
+            ["1", "2", "3", "4", "5"], clock=clock, max_wait=60
+        )
+        confidence = key_event2.key if key_event2 else None
+        confidence_RT = key_event2.timestamp 
+
     return {  # returning the response data
-        "pressed_key": pressed_key,
+        "pressed_key1": pressed_key1,
         "outcome": outcome,
-        "response": key_mapping.get(pressed_key, "NA"),
+        "response": response,
         "reaction_time": reaction_time,
-        "timeout": pressed_key is None,
+        "confidence": confidence,
+        "confidence_RT": confidence_RT,
+        "timeout": pressed_key1 is None,
     }
 
 

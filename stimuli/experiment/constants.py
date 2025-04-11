@@ -28,8 +28,8 @@ PHASES = {
 # Constants for the experiment visuals
 BACKGROUND_COLOR = "grey" 
 COLOR = "white" # Color of the text
-INSTRUCTIONS_FONT_SIZE = 24
-RESPONSE_FONT_SIZE = 20
+INSTRUCTIONS_FONT_SIZE = 16
+RESPONSE_FONT_SIZE = 18
 FIXATION_FONT_SIZE = 15
 
 

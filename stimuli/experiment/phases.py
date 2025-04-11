@@ -392,7 +392,7 @@ def explicit_phase(participant_data, block, window, full_screen, screen_info):
         interval.reset()  # This allows to reset the time counter
         draw_fixation(fixation_color)  # draw the fixation dot with feedback color
         window.flip()
-        send_trigger("ITI")
+        #send_trigger("ITI")
         timestamp_dicts["start_fixation"] = trial_clock.time()
 
         # ======= Leding stimuli ========
@@ -408,7 +408,7 @@ def explicit_phase(participant_data, block, window, full_screen, screen_info):
         interval.wait()  
 
         # presentation
-        send_trigger("stimulus")
+        #send_trigger("stimulus")
         if trial["modality"] == "auditory": leading_tone.play()  # play the leading tone only in auditory block
         window.flip()  # Flips the window to show the pre-loaded gabor and fixation
         timestamp_dicts["start_leading"] = trial_clock.time()
@@ -419,7 +419,7 @@ def explicit_phase(participant_data, block, window, full_screen, screen_info):
         interval.reset()
         draw_fixation(fixation_color)
         window.flip()
-        send_trigger("ISI")
+        #send_trigger("ISI")
         timestamp_dicts["start_isi"] = trial_clock.time()
 
         # ======= Trailing stimuli ========
@@ -435,7 +435,7 @@ def explicit_phase(participant_data, block, window, full_screen, screen_info):
         interval.wait()
 
         # presentation
-        send_trigger("stimulus")
+        #send_trigger("stimulus")
         if trial["modality"] == "auditory": trailing_tone.play()  # play the leading tone only in auditory block
         window.flip()
         timestamp_dicts["start_trailing"] = trial_clock.time()
@@ -443,7 +443,7 @@ def explicit_phase(participant_data, block, window, full_screen, screen_info):
 
         # ======= Response ========
         timestamp_dicts["start_response"] = trial_clock.time()
-        send_trigger("response")
+        #send_trigger("response")
         response = explicit_response(window, key_mapping, trial)
         timestamp_dicts["end_trial"] = trial_clock.time()
         block_data.append(
