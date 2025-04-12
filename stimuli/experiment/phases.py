@@ -143,7 +143,7 @@ def learning_phase(participant_data, block, window, full_screen, screen_info):
     key_mapping = participant_data[f"keymapping_learning_{block}"]
     block_data = []
 
-    for i, trial in enumerate(conditions):
+    for i, trial in enumerate(conditions[:2]):
         # Get trigger ids for the current trial type
         trial_type = f"{trial['v_trailing']}_{trial['v_pred']}_{trial['a_trailing']}_{trial['a_pred']}"
         trial_start_trigger =f"{trial_type}_trial_start"
@@ -241,14 +241,14 @@ def test_phase(participant_data, block, window, full_screen, screen_info):
     if block == 1:
         show_instructions(window, INSTRUCTIONS_TEXT["test_start"])
     else:
-        remaining_blocks = PHASES["test_blocks"] - block
+        remaining_blocks = PHASES["test_blocks"] - block + 1
         show_instructions(window, INSTRUCTIONS_TEXT["test_continue"], block=block, remaining_blocks=remaining_blocks)
    
     conditions = participant_data[f"conditions_test_{block}"]
     key_mapping = participant_data[f"keymapping_test_{block}"]
     block_data = []
 
-    for i, trial in enumerate(conditions):
+    for i, trial in enumerate(conditions[:2]):
         # Get trigger ids for the current trial type
         trial_type = f"{trial['v_trailing']}_{trial['v_pred']}_{trial['a_trailing']}_{trial['a_pred']}"
         trial_start_trigger =f"{trial_type}_trial_start"
@@ -373,9 +373,9 @@ def explicit_phase(participant_data, block, window, full_screen, screen_info):
 
     # Instructions
     if conditions[0]["modality"] == "auditory":
-        show_instructions(window, INSTRUCTIONS_TEXT["explicit_phase"], modality_verb="hear", modality="an auditory")
+        show_instructions(window, INSTRUCTIONS_TEXT["explicit_phase"], modality_task="noticed that some sounds were also paired more frequently than others.", modality_verb="hear", modality="an auditory")
     else: # visual
-        show_instructions(window, INSTRUCTIONS_TEXT["explicit_phase"], modality_verb="see", modality="a visual")
+        show_instructions(window, INSTRUCTIONS_TEXT["explicit_phase"], modality_task="can remember the visual pairs that you learned at the start of the experiment.", modality_verb="see", modality="a visual")
 
     for i, trial in enumerate(conditions):
         # Get trigger ids for the current trial type
@@ -470,3 +470,17 @@ def explicit_phase(participant_data, block, window, full_screen, screen_info):
         )
     # Save the block data
     save_block_data(participant_data, block_data, "explicit", block)
+
+
+def run_phase(phase, block, window, participant_data, full_screen, screen_info):
+    """
+    dispatcher function to run the different phases of the experiment
+    """
+    if phase == "localizer":
+        localizer_phase(participant_data, block, window, full_screen, screen_info)
+    elif phase == "learning":
+        learning_phase(participant_data, block, window, full_screen, screen_info)
+    elif phase == "test":
+        test_phase(participant_data, block, window, full_screen, screen_info)
+    elif phase == "explicit":
+        explicit_phase(participant_data, block, window, full_screen, screen_info)

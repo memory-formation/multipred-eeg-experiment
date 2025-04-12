@@ -17,13 +17,22 @@ DATA_FOLDER = "data"
 
 # Constants for the experiment setup
 PHASES = {
-    "localizer_trials": 10,
+    "localizer_trials": 2,
     "localizer_blocks": ["multimodal", "multimodal"], # can be "visual", "auditory" or "multimodal"
     "localizer_targets": ["visual", "visual"], # When blocks are multimodal, this will define the target modality
     "learning_blocks": 2,
-    "test_blocks": 10,
+    "test_blocks": 10, # make it even
     "explicit_blocks": 2,
 }
+
+# This controls batch execution. Each batch will run a different set of blocks in the order specified here.
+BATCH_SEQUENCES = {
+    "1": [("localizer", 1), ("learning", 1), ("learning", 2)],
+    "2": [("test", i) for i in range(1, PHASES["test_blocks"]//2 + 1)],
+    "3": [("test", i) for i in range(PHASES["test_blocks"]//2 + 1, PHASES["test_blocks"] + 1)],
+    "4": [("localizer", 2), ("explicit", 1), ("explicit", 2)],
+}
+
 
 # Constants for the experiment visuals
 BACKGROUND_COLOR = "grey" 
@@ -97,7 +106,7 @@ INSTRUCTIONS_TEXT = {
     ],
    
     "learning_start": [
-        "In this phase, you will learn to associate pairs of visual stimuli.",
+        "Now the experiment begins: you will learn to associate pairs of visual stimuli.",
         "You will see an oriented visual stimulus followed by a second oriented stimulus.",
         "Some orientations are paired together more frequently.",
         "Your task is to learn the associations, and discriminate between frequent and infrequent pairs.",
@@ -111,7 +120,7 @@ INSTRUCTIONS_TEXT = {
     ],
 
     "test_start": [
-        "Welcome to the test phase.",
+        f"The main part of the experiment is about to start. You will complete a total of {PHASES['test_blocks']} blocks.",
         "You will continue seeing the same oriented stimuli, but your task will change.",
         "On half of the trials, the orientation of the second stimulus will deviate from the perfect diagonals you have seen so far.",
         'Your task is to indicate whether the second orientation is a "normal" or a "deviant" diagonal.',
@@ -119,13 +128,13 @@ INSTRUCTIONS_TEXT = {
     ],
 
     "test_continue": [
-        "You are about to start block {block}. {remaining_blocks} more to go.", 
+        "You are about to start block {block}! {remaining_blocks} more to go.", 
         'The task remains the same: indicate whether the second orientation is a "normal" or a "deviant" diagonal.', 
         "Press the space bar to start.",
     ],
 
     "explicit_phase": [
-        "Welcome to the explicit phase.",
+        "Now we will test if you {modality_task}",
         "You will {modality_verb} {modality} stimulus followed by another one.",
         "Your task is to indicate whether the pair was frequent or infrequent.",
         "After responding, you will have to indicate how confident you are about your answer (1-5).",

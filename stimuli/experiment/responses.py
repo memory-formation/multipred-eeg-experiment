@@ -1,7 +1,7 @@
 import json
 import os
 
-from experiment.constants import COLOR, RESPONSE_FONT_SIZE
+from experiment.constants import COLOR, RESPONSE_FONT_SIZE, DATA_FOLDER
 from experiment.triggers import send_trigger
 from psychos.core import Clock
 from psychos.visual import Text
@@ -10,9 +10,9 @@ from psychos.visual import Text
 def localizer_response(window, target_modality, target_count, context):
     text_widget = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR)
     if target_modality == "visual":
-        text_widget.text = f"Press SPACE if you saw a weak stimulus"
+        text_widget.text = f"How many targets did you see?"
     else: # target_modality == "auditory":
-        text_widget.text = f"Press SPACE if you heard a weak stimulus"
+        text_widget.text = f"How many weaker sounds did you hear?"
 
     text_widget.draw()
     clock = Clock()  # This allows to init a clock to measure the RT
@@ -294,3 +294,18 @@ def save_block_data(participant_data, block_data, phase, block):
             json.dump(block_data, f)
 
     print(f"Block data saved to {out_path}")
+
+    # Update completed_blocks tracker in participant_data
+    completed = participant_data.setdefault("completed_blocks", {
+        "localizer": [],
+        "learning": [],
+        "test": [],
+        "explicit": []
+    })
+    if block not in completed[phase]:
+        completed[phase].append(block)
+
+    # Save updated participant_data back to disk
+    participant_data_path = f"{DATA_FOLDER}/{participant_data['participant_id']}/{participant_data["participant_id"]}_info.json"
+    with open(participant_data_path, "w") as f:
+        json.dump(participant_data, f, indent=4)

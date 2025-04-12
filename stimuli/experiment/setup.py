@@ -386,15 +386,28 @@ def setup():
         with open(participant_info_path, "r") as f:
             participant_data = json.load(f)
 
-    # Check which blocks have been completed
-    completed_localizer = len([f for f in participant_folder.iterdir() if "localizer" in f.name])
-    completed_learning = len([f for f in participant_folder.iterdir() if "learning" in f.name])
-    completed_test = len([f for f in participant_folder.iterdir() if "test" in f.name])
-    completed_explicit = len([f for f in participant_folder.iterdir() if "explicit" in f.name])
+    # Track completed blocks
+    participant_data["completed_blocks"] = participant_data.get("completed_blocks", {
+    "localizer": [],
+    "learning": [],
+    "test": [],
+    "explicit": []
+})
+    # Check how many blocks have been completed
+    completed_localizer = len(participant_data["completed_blocks"]["localizer"])
+    completed_learning = len(participant_data["completed_blocks"]["learning"])
+    completed_test = len(participant_data["completed_blocks"]["test"])
+    completed_explicit = len(participant_data["completed_blocks"]["explicit"])
+    
+    # # Check which blocks have been completed
+    # completed_localizer = len([f for f in participant_folder.iterdir() if "localizer" in f.name])
+    # completed_learning = len([f for f in participant_folder.iterdir() if "learning" in f.name])
+    # completed_test = len([f for f in participant_folder.iterdir() if "test" in f.name])
+    # completed_explicit = len([f for f in participant_folder.iterdir() if "explicit" in f.name])
 
     # Dialog to select block and phase based on progress
     dialog3 = Dialog(title="Block Selection Based on Participant Progress")
-    if completed_localizer < len(PHASES["localizer_blocks"]):
+    if completed_localizer == 0: # < len(PHASES["localizer_blocks"]):
         dialog3.add_field(name="phase", default="localizer", label="Phase", choices=["localizer", "learning", "test", "explicit"])
         dialog3.add_field(name="block", default=str(completed_localizer + 1), label="Block", format=int)
     elif completed_learning < PHASES["learning_blocks"]:

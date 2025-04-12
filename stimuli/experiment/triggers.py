@@ -120,7 +120,7 @@ def generate_triggers(condition_dict):
     # ===== TRIGGERS FOR LOCALIZER PHASE =====
     highest_trigger = max(triggers.values()) # Get the highest trigger number
     localizer_triggers = {
-    "loc_start": highest_trigger + 1, 
+    "loc_trial_start": highest_trigger + 1, 
     "loc_isi": highest_trigger + 2,
     "loc_45_100": highest_trigger + 3,
     "loc_45_160": highest_trigger + 4,
