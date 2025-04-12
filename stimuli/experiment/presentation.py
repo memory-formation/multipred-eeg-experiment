@@ -7,9 +7,12 @@ from psychos.visual import Gabor, Image, RawImage, Text
 from psychos.visual.synthetic import gabor_3d
 
 
-def show_instructions(window, text):
+def show_instructions(window, text, **kwargs):
     if isinstance(text, str):
         text = [text]
+
+    # format the text if it contains placeholders
+    text = [line.format(**kwargs) for line in text]
 
     text_widget = Text(font_size=INSTRUCTIONS_FONT_SIZE, color=COLOR)
     for line in text:

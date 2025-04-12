@@ -21,7 +21,7 @@ PHASES = {
     "localizer_blocks": ["multimodal", "multimodal"], # can be "visual", "auditory" or "multimodal"
     "localizer_targets": ["visual", "visual"], # When blocks are multimodal, this will define the target modality
     "learning_blocks": 2,
-    "test_blocks": 2,
+    "test_blocks": 10,
     "explicit_blocks": 2,
 }
 
@@ -84,30 +84,30 @@ TRIGGER_MAPPING = generate_triggers(CONDITIONS_MAIN) # Generate dictionary that 
 # Instructions for the different blocks and phases
 INSTRUCTIONS_TEXT = {
     "localizer_start": [
-        "Welcome to the localizer phase.",
-        "You will see a visual stimulus followed by an auditory stimulus.",
-        "Your task is to indicate whether the visual stimulus was frequent or infrequent.",
-        "Press the space bar to continue.",
+        "We are about to start the functioanl localizer phase.",
+        "You will see a sequence of 8 Gabor patches, accompanied by a sound.",
+        "Your task is to count how many Gabor patches had a lower spatial frequency (lines more spread out)",
+        "Press the space bar when you are ready to start.",
     ],
 
     "localizer_continue": [
-        "You are about to start the next block.", 
-        "Remember the associations you have learned. Your task is the same: discrimiante between frequent and infrequent pairs of orientations.", 
+        "We are going to do another functional localizer.", 
+        "Remember the associations you have learned. Your task is the same: discriminate between frequent and infrequent pairs of orientations.", 
         "Press the space bar to continue.",
     ],
    
     "learning_start": [
-        "Welcome to this experiment. In this phase, you will learn to associate pairs of visual stimuli.",
+        "In this phase, you will learn to associate pairs of visual stimuli.",
         "You will see an oriented visual stimulus followed by a second oriented stimulus.",
         "Some orientations are paired together more frequently.",
-        "Your task is to learn the associations, and discrimiante between frequent and infrequent pairs.",
+        "Your task is to learn the associations, and discriminate between frequent and infrequent pairs.",
         "Press the space bar to continue.",
     ],
 
     "learning_continue": [
-        "You are about to start the next block.", 
-        "Remember the associations you have learned. Your task is the same: discrimiante between frequent and infrequent pairs of orientations.", 
-        "Press the space bar to continue.",
+        "You are about to start a second block, identical to the previous one. Remember the associations you have learned. ", 
+        "Your task is the same: discriminate between frequent and infrequent pairs of orientations.", 
+        "Press the space bar to start.",
     ],
 
     "test_start": [
@@ -115,19 +115,20 @@ INSTRUCTIONS_TEXT = {
         "You will continue seeing the same oriented stimuli, but your task will change.",
         "On half of the trials, the orientation of the second stimulus will deviate from the perfect diagonals you have seen so far.",
         'Your task is to indicate whether the second orientation is a "normal" or a "deviant" diagonal.',
-        "Press the space bar to continue.",
+        "Press the space bar to start.",
     ],
 
     "test_continue": [
-        "You are about to start the next block.", 
+        "You are about to start block {block}. {remaining_blocks} more to go.", 
         'The task remains the same: indicate whether the second orientation is a "normal" or a "deviant" diagonal.', 
-        "Press the space bar to continue.",
+        "Press the space bar to start.",
     ],
 
     "explicit_phase": [
         "Welcome to the explicit phase.",
-        "You will see a visual stimulus followed by an auditory stimulus.",
-        "Your task is to indicate whether the visual stimulus was frequent or infrequent.",
-        "Press the space bar to continue.",
+        "You will {modality_verb} {modality} stimulus followed by another one.",
+        "Your task is to indicate whether the pair was frequent or infrequent.",
+        "After responding, you will have to indicate how confident you are about your answer (1-5).",
+        "Press the space bar to start.",
     ],
 }

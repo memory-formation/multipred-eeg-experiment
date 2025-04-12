@@ -1,7 +1,7 @@
 import random
 from datetime import datetime
 
-from experiment.constants import (COLOR, GABOR_PARAMS, INITIAL_STAIRCASE,
+from experiment.constants import (COLOR, GABOR_PARAMS, INITIAL_STAIRCASE, PHASES,
                                   INSTRUCTIONS_TEXT, ISOTONIC_SOUNDS,
                                   STAIRCASE_PARAMS, STIM_INFO)
 from experiment.presentation import (create_puretone, draw_fixation,
@@ -241,9 +241,9 @@ def test_phase(participant_data, block, window, full_screen, screen_info):
     if block == 1:
         show_instructions(window, INSTRUCTIONS_TEXT["test_start"])
     else:
-        show_instructions(window, INSTRUCTIONS_TEXT["test_continue"])
+        remaining_blocks = PHASES["test_blocks"] - block
+        show_instructions(window, INSTRUCTIONS_TEXT["test_continue"], block=block, remaining_blocks=remaining_blocks)
    
-
     conditions = participant_data[f"conditions_test_{block}"]
     key_mapping = participant_data[f"keymapping_test_{block}"]
     block_data = []
@@ -367,12 +367,15 @@ def test_phase(participant_data, block, window, full_screen, screen_info):
 
 
 def explicit_phase(participant_data, block, window, full_screen, screen_info):
-    # Instructions
-    show_instructions(window, INSTRUCTIONS_TEXT["explicit_phase"])
-   
     conditions = participant_data[f"conditions_explicit_{block}"]
     key_mapping = participant_data[f"keymapping_explicit_{block}"]
     block_data = []
+
+    # Instructions
+    if conditions[0]["modality"] == "auditory":
+        show_instructions(window, INSTRUCTIONS_TEXT["explicit_phase"], modality_verb="hear", modality="an auditory")
+    else: # visual
+        show_instructions(window, INSTRUCTIONS_TEXT["explicit_phase"], modality_verb="see", modality="a visual")
 
     for i, trial in enumerate(conditions):
         # Get trigger ids for the current trial type
