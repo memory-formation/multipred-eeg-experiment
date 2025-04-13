@@ -4,7 +4,7 @@ from experiment.constants import (COLOR, FIXATION_FONT_SIZE, GABOR_PARAMS,
 from psychos.core import Clock
 from psychos.sound import FlatEnvelope, Sine
 from psychos.visual import Gabor, Image, RawImage, Text
-from psychos.visual.synthetic import gabor_3d
+from psychos.visual.synthetic import gabor_3d, gabor_2d
 
 
 def show_instructions(window, text, **kwargs):
@@ -58,7 +58,7 @@ def visual_angle_to_pixels(angle_deg, distance_cm, screen_width_cm, screen_width
 
 
 
-def generate_neutral_gabor(screen_info):
+def generate_neutral_gabor(screen_info, luminance_gain=1.0):
     if GABOR_PARAMS["units"] == "deg":
         size, spatial_frequency = visual_angle_to_pixels(
             GABOR_PARAMS["size"], screen_info["distance_cm"], screen_info["screen_width_cm"], screen_info["screen_width_px"]
@@ -68,25 +68,29 @@ def generate_neutral_gabor(screen_info):
         spatial_frequency = 20  # Adjust spatial frequency based on size
   
     data_0 = 255 * gabor_3d(
-        size=(256, 256), spatial_frequency=spatial_frequency, orientation=0, contrast=0.5
+        size=(256, 256), spatial_frequency=spatial_frequency, orientation=0, contrast=1
     )
     data_90 = 255 * gabor_3d(
-        size=(256, 256), spatial_frequency=spatial_frequency, orientation=90, contrast=0.5
+        size=(256, 256), spatial_frequency=spatial_frequency, orientation=90, contrast=1
     )
     data_neutral = 0.5 * (data_0 + data_90)
+    data_neutral[..., :3] *= luminance_gain  # Only apply luminance to RGB channels
+    # Clip only RGB channels (alpha left as-is) otherwise when increasing luminance above 255 they will loop back to 0
+    data_neutral[..., :3] = np.clip(data_neutral[..., :3], 0, 255)
+
     data_neutral = data_neutral.astype("uint8")
+    print("Mean luminance - G0:", np.mean(data_0), "Neutral:", np.mean(data_neutral))
     image = RawImage(
         raw_image=data_neutral,
         width=size,
         height=size,
     )
 
-    return image
+    return image 
 
 
 
-
-def draw_gabor(orientation, screen_info, contrast=None, spatial_frequency=None):
+def draw_gabor(orientation, screen_info, contrast=None, spatial_frequency=None, **kwargs):
     """
     Draw a Gabor patch on the screen.
     :param orientation: Orientation of the Gabor in degrees.
@@ -107,7 +111,7 @@ def draw_gabor(orientation, screen_info, contrast=None, spatial_frequency=None):
         spatial_frequency = 20  # Adjust spatial frequency based on size
 
     if orientation == "neutralV":
-        image = generate_neutral_gabor(screen_info)
+        image = generate_neutral_gabor(screen_info, **kwargs)
         image.draw()
 
     else:  # gabor

@@ -1,0 +1,43 @@
+from psychos import Window
+from experiment.constants import BACKGROUND_COLOR, GABOR_PARAMS, SCREENS, COLOR
+from experiment.presentation import draw_gabor, draw_fixation
+
+full_screen = "Yes"  # This should be set based on the user's choice or the environment
+screen_info = SCREENS["hp_laptop"]
+window = Window(background_color=BACKGROUND_COLOR, fullscreen=full_screen == "Yes")
+
+draw_gabor(45, screen_info)
+draw_fixation(COLOR)
+window.flip()
+key_event = window.wait_key(["SPACE"])
+
+draw_gabor(135, screen_info)
+draw_fixation(COLOR)
+window.flip()
+key_event = window.wait_key(["SPACE"])
+
+
+# Initial luminance gain
+luminance_gain = 1.0
+step_size = 0.001  # adjust as needed
+
+while True:
+    # Draw stimulus with current gain
+    draw_gabor("neutralV", screen_info, luminance_gain=luminance_gain)
+    draw_fixation(COLOR)
+    window.flip()
+
+    # Print to console for monitoring
+    print(f"Current luminance gain: {luminance_gain:.3f}")
+
+    # Wait for key input
+    key = window.wait_key(["UP", "DOWN", "SPACE"])
+    pressed_key = key.key
+
+    if pressed_key == "UP":
+        luminance_gain += step_size
+    elif pressed_key == "DOWN":
+        luminance_gain = max(0.0, luminance_gain - step_size)
+    elif pressed_key == "SPACE":
+        print(f"Final luminance gain selected: {luminance_gain:.3f}")
+        break
