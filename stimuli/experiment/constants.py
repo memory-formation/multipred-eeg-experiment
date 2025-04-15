@@ -64,13 +64,17 @@ STAIRCASE_PARAMS = { # Parameters to control how the staircase adapts to perform
     "max_diff": 20, # Maximum orientation difference allowed for diagonal targets. Greater than 22.5 would be closer to cardinal orientations
 }
 
+FIXATION_PARAMS = {
+    "color": "white",
+    "radius": 0.1, # in degrees
+}
+
 GABOR_PARAMS = {
     "contrast": 1,
     "spatial_frequency": 2.4, # Spatial frequency of the Gabor in cycles per degree
     "size": 20, 
     "units": "deg" #"deg", # Units of the Gabor size. If None it will be "50vw", and spatial_frquency 20 cycles for the whole image
 }
-
 
 
 ISOTONIC_SOUNDS = { # Amplitudes needed for each frequency to make them isotonic. (calculated according to ISO 266)

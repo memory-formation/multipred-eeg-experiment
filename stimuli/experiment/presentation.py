@@ -1,9 +1,9 @@
 import numpy as np
 from experiment.constants import (COLOR, FIXATION_FONT_SIZE, GABOR_PARAMS,
-                                  INSTRUCTIONS_FONT_SIZE)
+                                  INSTRUCTIONS_FONT_SIZE, FIXATION_PARAMS)
 from psychos.core import Clock
 from psychos.sound import FlatEnvelope, Sine
-from psychos.visual import Gabor, Image, RawImage, Text
+from psychos.visual import Gabor, Image, RawImage, Text, Circle
 from psychos.visual.synthetic import gabor_3d, gabor_2d
 
 
@@ -20,12 +20,6 @@ def show_instructions(window, text, **kwargs):
         text_widget.draw()
         window.flip()
         key_event = window.wait_key()
-
-
-def draw_fixation(fixation_color):
-    text_widget = Text(font_size=FIXATION_FONT_SIZE, color=fixation_color)
-    text_widget.text = "o"
-    text_widget.draw()
 
 
 def visual_angle_to_pixels(angle_deg, distance_cm, screen_width_cm, screen_width_px, sf=None):
@@ -55,8 +49,6 @@ def visual_angle_to_pixels(angle_deg, distance_cm, screen_width_cm, screen_width
     spatial_frequency = sf * angle_deg  # Adjust spatial frequency based on size
 
     return int(round(size_px)), spatial_frequency
-
-
 
 def generate_neutral_gabor(screen_info, luminance_gain=1.0):
     if GABOR_PARAMS["units"] == "deg":
@@ -125,7 +117,18 @@ def draw_gabor(orientation, screen_info, contrast=None, spatial_frequency=None, 
 
         image.draw()
         
-
+def draw_fixation(fixation_color, screen_info, radius=FIXATION_PARAMS["radius"]):
+    """
+    Draw a fixation dot on the screen.
+    :param fixation_color: Color of the fixation dot.
+    :param radius: Radius of the fixation dot in visual degrees, is converted to pixels.
+    """
+    # Convert radius from degrees to pixels
+    size, _ = visual_angle_to_pixels(
+            radius, screen_info["distance_cm"], screen_info["screen_width_cm"], screen_info["screen_width_px"]
+            )
+    fixation = Circle(color=fixation_color, radius=size)
+    fixation.draw()
 
 def create_puretone(frequency, duration=0.5, amplitude=1):
     """
