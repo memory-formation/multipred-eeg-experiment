@@ -250,12 +250,12 @@ class ConnectedEyeLinker:
 
         Text(
             self.window, text='Sometimes a target that looks like this will appear.',
-            font_size=INSTRUCTIONS_FONT_SIZE, color=COLOR, position=(0, -0.2)
+            font_size=INSTRUCTIONS_FONT_SIZE, color=COLOR, position=(0, 0.2)
         ).draw()
 
         Text(
             self.window, text='We use it to calibrate the eye tracker. Stare at it whenever you see it.',
-            font_size=INSTRUCTIONS_FONT_SIZE, color=COLOR, position=(0, 0.15)
+            font_size=INSTRUCTIONS_FONT_SIZE, color=COLOR, position=(0, -0.15)
         ).draw()
 
         Text(

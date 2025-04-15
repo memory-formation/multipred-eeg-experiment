@@ -154,17 +154,17 @@ def explicit_response(window, key_mapping, trial, response_trigger, confidence_t
     # Confidence rating
     if response != "NA":
         # Display the confidence rating question
-        question_text = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR, position=(0, -.25))
+        question_text = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR, position=(0, .2))
         question_text.text = "How confident are you in your response?"
-        rating1_text = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR, position=(-.5, .25))
+        rating1_text = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR, position=(-.5, -.2))
         rating1_text.text = "1: not at all"
-        rating2_text = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR, position=(-.25, .25))
+        rating2_text = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR, position=(-.25, -.2))
         rating2_text.text = "2: a little"
-        rating3_text = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR, position=(0, .25))
+        rating3_text = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR, position=(0, -.2))
         rating3_text.text = "3: moderately"
-        rating4_text = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR, position=(.25, .25)) 
+        rating4_text = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR, position=(.25, -.2)) 
         rating4_text.text = "4: very"
-        rating5_text = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR, position=(.5, .25))
+        rating5_text = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR, position=(.5, -.2))
         rating5_text.text = "5: completely"
         question_text.draw()
         rating1_text.draw()
