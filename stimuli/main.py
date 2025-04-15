@@ -27,7 +27,7 @@ def main(batch=None):
                 continue
 
             if mock_tracker: # Check if the tracker is in mock mode
-                print(f"Skipping offline_mode_start in mock mode.")
+                print(f"Skipping eye tracking recording in mock mode.")
             else:
                 eyelinker.offline_mode_start() # Start recording Eye
 
@@ -42,7 +42,7 @@ def main(batch=None):
             return
         
         if mock_tracker:
-            print(f"Skipping offline_mode_start in mock mode.")
+            print(f"Skipping eye tracking recording in mock mode.")
         else:
             eyelinker.offline_mode_start() # Start recording Eye
         

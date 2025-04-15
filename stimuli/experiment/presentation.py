@@ -19,7 +19,7 @@ def show_instructions(window, text, **kwargs):
         text_widget.text = line
         text_widget.draw()
         window.flip()
-        key_event = window.wait_key()
+        window.wait_key(["SPACE"])
 
 
 def visual_angle_to_pixels(angle_deg, distance_cm, screen_width_cm, screen_width_px, sf=None):
