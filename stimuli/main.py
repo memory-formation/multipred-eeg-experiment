@@ -4,6 +4,7 @@ import os
 from experiment.constants import BATCH_SEQUENCES
 from experiment.phases import run_phase #(explicit_phase, learning_phase, run_phase,test_phase)
 from experiment.setup import setup
+from experiment.triggers import get_tracker
 
 
 def main(batch=None):
@@ -12,14 +13,19 @@ def main(batch=None):
     If no batch is specified, the experimenter will manually select an individual block and phase to run.
     Otherwise, if the script is run like: python main.py --batch 1,2..., it will run all blocks specified in the batch.
     """
-    window, participant_data, phase, block, full_screen, screen_info = setup()
+    window, participant_data, phase, block, full_screen, screen_info, tracker = setup()
+
+    get_tracker(tracker) # inject tracker object in the triggers module
+
+    # Using batch sequences to run specific blocks
     if batch:
         for (p, b) in BATCH_SEQUENCES[batch]:
             if b in participant_data.get("completed_blocks", {}).get(p, []):
                 print(f"Skipping {p} block {b}: already completed.")
                 continue
             run_phase(p, b, window, participant_data, full_screen, screen_info)
-    
+            
+    # You can also run specific blocks 
     else:
         if block in participant_data.get("completed_blocks", {}).get(phase, []):
             print(f"Skipping {phase} block {block}: already completed.")

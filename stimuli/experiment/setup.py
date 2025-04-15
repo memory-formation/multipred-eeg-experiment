@@ -4,6 +4,8 @@ import logging
 import random
 from pathlib import Path
 
+from experiment.eyelinker import EyeLinker
+
 from psychos import Window
 from psychos.gui import Dialog
 
@@ -399,11 +401,6 @@ def setup():
     completed_test = len(participant_data["completed_blocks"]["test"])
     completed_explicit = len(participant_data["completed_blocks"]["explicit"])
     
-    # # Check which blocks have been completed
-    # completed_localizer = len([f for f in participant_folder.iterdir() if "localizer" in f.name])
-    # completed_learning = len([f for f in participant_folder.iterdir() if "learning" in f.name])
-    # completed_test = len([f for f in participant_folder.iterdir() if "test" in f.name])
-    # completed_explicit = len([f for f in participant_folder.iterdir() if "explicit" in f.name])
 
     # Dialog to select block and phase based on progress
     dialog3 = Dialog(title="Block Selection Based on Participant Progress")
@@ -438,6 +435,13 @@ def setup():
     #  window for the experiment
     window = Window(background_color=BACKGROUND_COLOR, fullscreen=full_screen == "Yes")
 
-    return window, participant_data, phase, block, full_screen, screen_info
+    # Create eye tracker object. Will attempt to default to MockEyeLinker if no tracker connected
+    tracker = EyeLinker(window, 'xxxxxxxxxxxxxxxxxxxx.edf', 'RIGHT') 
+    # initialize
+    tracker.init_tracker()
+    # funtion test and calibrate
+    tracker.testFunAndCalib()
+
+    return window, participant_data, phase, block, full_screen, screen_info, tracker
 
 

@@ -5,7 +5,8 @@ from psychos.triggers import DelayTrigger, DummyPort, StepTrigger
 
 # from psychos.triggers import ParallelPort, SerialPort # comment if using port = DummyPort(). Otherwise it raises an error
 
-TRIGGER = None # Global variable for lazy initialization of the trigger
+TRIGGER = None # Global variable for lazy initialization of the EEG trigger port
+TRACKER = None # Global variable for the tracker instance
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -26,14 +27,19 @@ def get_trigger():
         TRIGGER = trigger
     return TRIGGER
 
+def get_tracker(tracker_instance):
+    """Sets the global tracker instance."""
+    global TRACKER
+    TRACKER = tracker_instance
+
 
 def send_trigger(trigger_type, context=None):
     trigger = get_trigger()
     trigger.send(trigger_type)
+    TRACKER.send_message('trig' + str(trigger_type)) # Send trigger to EyeLink tracker
 
     context_info = f" | Context: {context}" if context else ""
     logger.info(f"Trigger sent: {trigger_type}{context_info}")
-
 
 
 # This function is called in constants.py
