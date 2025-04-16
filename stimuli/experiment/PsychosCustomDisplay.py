@@ -73,7 +73,7 @@ class PsychosCustomDisplay(pylink.EyeLinkCustomDisplay):
         self.image_buffer = array.array('I')
 
         if all(i >= 0.5 for i in self.window.background_color):
-            self.text_color = (-1, -1, -1)
+            self.text_color = (0, 0, 0)
         else:
             self.text_color = (1, 1, 1)
 
@@ -125,7 +125,7 @@ class PsychosCustomDisplay(pylink.EyeLinkCustomDisplay):
         # self.mouse = psychopy.event.Mouse(visible=False) # no mouse in Psychos for now
 
         self.image_title_object = Text(
-            text='', pos=(0, -200), font_size=10, color=self.text_color, window = self.window
+            text='', position=(0, -200), font_size=10, color=self.text_color, window = self.window
         )
 
         self.cal_target_outer = Circle(

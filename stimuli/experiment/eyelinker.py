@@ -106,7 +106,7 @@ class ConnectedEyeLinker:
 
         if text_color is None:
             if all(i >= 0.5 for i in self.window.color):
-                self.text_color = (-1, -1, -1)
+                self.text_color = (0, 0, 0)
             else:
                 self.text_color = (1, 1, 1)
         else:
@@ -249,22 +249,22 @@ class ConnectedEyeLinker:
         """Displays basic instructions to participant."""
         self.window.flip()
 
-        Circle(self.window, radius=18, color='white').draw()
-        Circle(self.window, radius=6, color='black').draw()
+        Circle(radius=18, color='white', window=self.window).draw()
+        Circle(radius=6, color='black', window=self.window).draw()
 
         Text(
-            self.window, text='Sometimes a target that looks like this will appear.',
-            font_size=INSTRUCTIONS_FONT_SIZE, color=COLOR, position=(0, 0.2)
+            text='Sometimes a target that looks like this will appear.',
+            font_size=INSTRUCTIONS_FONT_SIZE, color=COLOR, position=(0, 0.2), window=self.window
         ).draw()
 
         Text(
-            self.window, text='We use it to calibrate the eye tracker. Stare at it whenever you see it.',
-            font_size=INSTRUCTIONS_FONT_SIZE, color=COLOR, position=(0, -0.15)
+            text='We use it to calibrate the eye tracker. Stare at it whenever you see it.',
+            font_size=INSTRUCTIONS_FONT_SIZE, color=COLOR, position=(0, -0.15), window=self.window
         ).draw()
 
         Text(
-            self.window, text='Press space to continue.',
-            font_size=INSTRUCTIONS_FONT_SIZE, color=COLOR, position=(0, -0.2)
+            text='Press space to continue.',
+            font_size=INSTRUCTIONS_FONT_SIZE, color=COLOR, position=(0, -0.2), window=self.window
 
         ).draw(),
 
@@ -285,8 +285,7 @@ class ConnectedEyeLinker:
             )
 
         Text(
-            self.window, text=text,
-            font_size=INSTRUCTIONS_FONT_SIZE, color=COLOR, position=(0, 0)
+            text=text, font_size=INSTRUCTIONS_FONT_SIZE, color=COLOR, position=(0, 0), window=self.window
         ).draw()
 
         self.window.flip()
