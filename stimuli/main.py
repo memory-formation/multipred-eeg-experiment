@@ -14,7 +14,14 @@ def main(batch=None):
     If no batch is specified, the experimenter will manually select an individual block and phase to run.
     Otherwise, if the script is run like: python main.py --batch 1,2..., it will run all blocks specified in the batch.
     """
-    window, participant_data, phase, block, full_screen, screen_info, tracker = setup()
+    window, participant_data, phase, block, full_screen, screen_info = setup()
+
+    tracker = eyelinker.EyeLinker(window, "xxx.edf", 'RIGHT')  # {data_folder}/{participant_id}/{participant_id}_eye.edf'
+    # initialize
+    tracker.init_tracker()
+    # Calibrate
+    #tracker.testFunAndCalib()
+
     mock_tracker = getattr(tracker, 'mock', False) # Check if the tracker is in mock mode
     get_tracker(tracker) # inject tracker object in the triggers module
 
@@ -33,7 +40,7 @@ def main(batch=None):
 
             run_phase(p, b, window, participant_data, full_screen, screen_info)
 
-            if not mock_tracker:tracker.transfer_edf() # Send eye data at the end of each block
+            if not mock_tracker: tracker.transfer_edf() # Send eye data at the end of each block
             
     # You can also run specific blocks 
     else:
