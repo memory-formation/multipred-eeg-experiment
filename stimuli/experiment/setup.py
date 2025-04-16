@@ -436,7 +436,7 @@ def setup():
     window = Window(background_color=BACKGROUND_COLOR, fullscreen=full_screen == "Yes")
 
     # Create eye tracker object. Will attempt to default to MockEyeLinker if no tracker connected
-    tracker = EyeLinker(window, 'xxxxxxxxxxxxxxxxxxxx.edf', 'RIGHT') 
+    tracker = EyeLinker(window, f'{data_folder}/{participant_id}/{participant_id}_eye.edf', 'RIGHT') 
     # initialize
     tracker.init_tracker()
     # funtion test and calibrate

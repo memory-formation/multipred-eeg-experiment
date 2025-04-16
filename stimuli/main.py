@@ -25,7 +25,7 @@ def main(batch=None):
             if b in participant_data.get("completed_blocks", {}).get(p, []): # Check if the block has already been completed
                 print(f"Skipping {p} block {b}: already completed.")
                 continue
-
+   
             if mock_tracker: # Check if the tracker is in mock mode
                 print(f"Skipping eye tracking recording in mock mode.")
             else:

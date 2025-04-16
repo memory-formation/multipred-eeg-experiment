@@ -6,7 +6,11 @@ import pylink as pl
 from experiment.constants import COLOR, INSTRUCTIONS_FONT_SIZE
 from psychos.visual import Circle, Text
 from experiment.PsychosCustomDisplay import PsychosCustomDisplay
+from math import sin, cos, pi, atan, sqrt, radians, hypot
 
+RIGHT_EYE = 1
+LEFT_EYE  = 0
+BINOCULAR = 2
 
 def _try_connection():
     """Attempts to connect to eyetracker.
@@ -108,12 +112,12 @@ class ConnectedEyeLinker:
         else:
             self.text_color = text_color
 
-    # def initialize_graphics(self):
-    #     """Opens the PsychoPyCustomDisplay object.
-    #     Must be called during setup phase.
-    #     """
-    #     self.set_offline_mode()
-    #     pl.openGraphicsEx(self.genv)
+    def initialize_graphics(self):
+        """Opens the PsychoPyCustomDisplay object.
+        Must be called during setup phase.
+        """
+        self.set_offline_mode()
+        pl.openGraphicsEx(self.genv)
 
     def initialize_tracker(self):
         """Sends commands setting up basic settings that are unlikely to be changed.
@@ -441,6 +445,149 @@ class ConnectedEyeLinker:
         time.sleep(2)
         self.stop_recording()
         print('Basic functionality tests passed...')
+
+def topLeftToCenter(pointXY, screenXY, flipY=False):
+    """
+    Takes a coordinate given in topLeft reference frame and transforms it
+    to center-based coordiantes. Switches from (0,0) as top left to
+    (0,0) as center
+    Parameters
+    ----------
+    pointXY : tuple
+        The topLeft coordinate which is to be transformed
+    screenXY : tuple, ints
+        The (x,y) dimensions of the grid or screen
+    flipY : Bool
+        If True, flips the y coordinates
+    Returns
+    -------
+    newPos : tuple
+        The (x,y) position in center-based coordinates
+    Examples
+    --------
+    >>> newPos = topLeftToCenter((100,100), (1920,1080), False)
+    >>> newPos
+    (-860.0, 440.0)
+    """
+    newX = pointXY[0] - (screenXY[0] / 2.0)
+    newY = (screenXY[1] / 2.0) - pointXY[1]
+    if flipY:
+        newY *= -1
+    return [newX, newY]
+
+
+def centerToTopLeft(pointXY, screenXY, flipY=False):
+    """
+    Takes a coordinate given in a centered reference frame and transforms it
+    to topLeft based coordiantes. Switches from (0,0) as center to
+    (0,0) as topLeft
+    Parameters
+    ----------
+    pointXY : tuple
+        The center-based coordinate which is to be transformed
+    screenXY : tuple, ints
+        The (x,y) dimensions of the grid or screen
+    flipY : Bool
+        If True, flips the y coordinates
+    Returns
+    -------
+    newPos : tuple
+        The (x,y) position in topLeft based coordinates
+    Examples
+    --------
+    >>> newPos = centerToTopLeft((100,100), (1920,1080), False)
+    >>> newPos
+    (1060, 640)
+    """
+    
+    newX = pointXY[0] + (screenXY[0] / 2)
+    if not flipY:
+        newY = pointXY[1] + (screenXY[1] / 2)
+    else:
+        newY = (pointXY[1] * -1) + (screenXY[1] / 2)
+    return [newX, newY]
+
+
+def check_sacc(Dis_sacc, startime = 0):
+
+    ''' check for eye movements'''
+    
+    # check recording eye
+    eye_used = pl.getEYELINK().eyeAvailable(); #determine which eye(s) are available 
+    if eye_used == LEFT_EYE or eye_used == BINOCULAR: eye_used = LEFT_EYE
+
+    gotSac = False
+
+    d = pl.getEYELINK().getNextData()
+    if (d == 6) and (not gotSac):
+        newEvent = pl.getEYELINK().getFloatData()
+        if newEvent and (eye_used == newEvent.getEye()):
+            startLoc   = newEvent.getStartGaze()
+            endLoc     = newEvent.getEndGaze()
+            sacDist    = sqrt((startLoc[0] - endLoc[0])**2 + (startLoc[1] - endLoc[1])**2)
+            if sacDist >=Dis_sacc: 
+                gotSac = True
+                ref_time = pl.getEYELINK().trackerTime() - startime
+    if gotSac:
+        Value = [gotSac, sacDist, startLoc, endLoc, ref_time] 
+    else:
+        Value = [False, None, None, None, None]
+    return Value
+
+def check_fix(start_loc, fix_loc, acceptableDev, Dis_for_sacc, scnSize, startime = 0):
+
+    ''' check for eye fixation for a spatial location'''
+    
+    eye_used = pl.getEYELINK().eyeAvailable()
+    fix_loc = centerToTopLeft(fix_loc,scnSize )
+    start_loc = centerToTopLeft(start_loc,scnSize )
+
+    fixAcquired = False;fix4Target = False
+    if fix_loc:
+        fix_loc = [fix_loc[0],fix_loc[1]]
+        dt = pl.getEYELINK().getNewestSample() # check for new sample update
+        if(dt != None):
+            # Gets the gaze position of the latest sample,
+            if eye_used == RIGHT_EYE and dt.isRightSample():
+                gazePos = dt.getRightEye().getGaze()
+            elif eye_used == LEFT_EYE and dt.isLeftSample():
+                gazePos = dt.getLeftEye().getGaze()
+            gazeDev  = sqrt((gazePos[0]-fix_loc[0])**2+ (gazePos[1]-fix_loc[1])**2)
+            gazeStart = sqrt((gazePos[0]-start_loc[0])**2+ (gazePos[1]-start_loc[1])**2)
+            if gazeStart > Dis_for_sacc:
+                fixAcquired = True
+                ref_time = None
+            if gazeDev < acceptableDev: 
+                fix4Target = True
+                ref_time =  pl.getEYELINK().trackerTime() - startime
+                
+    if fixAcquired or fix4Target:
+        gazePos = topLeftToCenter(gazePos,scnSize)
+        Value =[fixAcquired, fix4Target, gazePos, gazeDev, ref_time]
+    else:
+        Value = [False, False, None, None, None, None]
+    return Value
+
+# def checkKeyEvent(KEYS_ALLOWED,TERMINATE_UPON_RESP,startime):
+    
+#     pl.flushGetkeyQueue(); 
+#     ev = pygame.event.get()
+#     gotKey = False; escapePressed = False
+#     for keyp in ev:
+#         if (keyp.type == KEYDOWN):
+#             keycode = keyp.key
+#             if keycode == K_KP_MULTIPLY and (keycode in KEYS_ALLOWED):
+#                 pygame.quit(); sys.exit();
+#             if (TERMINATE_UPON_RESP == True) and (keycode in KEYS_ALLOWED):
+#                 gotKey   = True
+#                 respKey  = pygame.key.name(keycode)
+#                 respTime = pl.getEYELINK().trackerTime()
+#             if keycode == K_ESCAPE: escapePressed = True
+
+#     if gotKey:
+#         return [gotKey, escapePressed, respKey, startime, respTime, respTime-startime]
+#     else:
+#         return [False, False, None, None, None, None]
 
 
 def offline_mode_start():
