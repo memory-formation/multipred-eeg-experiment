@@ -5,7 +5,7 @@ import experiment.eyelinker as eyelinker
 from experiment.constants import BATCH_SEQUENCES
 from experiment.phases import run_phase
 from experiment.setup import setup
-from experiment.triggers import get_tracker
+from experiment.triggers import get_tracker, send_trigger
 
 
 def main(batch=None):
@@ -14,19 +14,23 @@ def main(batch=None):
     If no batch is specified, the experimenter will manually select an individual block and phase to run.
     Otherwise, if the script is run like: python main.py --batch 1,2..., it will run all blocks specified in the batch.
     """
+    # === SETUP ===
     window, participant_data, phase, block, full_screen, screen_info = setup()
 
+    # === EYE TRACKER ===
+    # Initialize the EyeLink tracker
     tracker = eyelinker.EyeLinker(window, "xxx.edf", 'RIGHT')  # {data_folder}/{participant_id}/{participant_id}_eye.edf'
-    # initialize
     tracker.init_tracker()
-    # Calibrate
-    #tracker.testFunAndCalib()
-
     mock_tracker = getattr(tracker, 'mock', False) # Check if the tracker is in mock mode
     get_tracker(tracker) # inject tracker object in the triggers module
 
+    # Calibrate
+    #tracker.testFunAndCalib()
+
     # Using batch sequences to run specific blocks
     if batch:
+        context = f"BATCH {batch}" # context for trigger logs
+        send_trigger("recording_on", context=context) # Send trigger to EEG system to start recording
         for (p, b) in BATCH_SEQUENCES[batch]:
 
             if b in participant_data.get("completed_blocks", {}).get(p, []): # Check if the block has already been completed
@@ -41,6 +45,8 @@ def main(batch=None):
             run_phase(p, b, window, participant_data, full_screen, screen_info)
 
             if not mock_tracker: tracker.transfer_edf() # Send eye data at the end of each block
+        
+        send_trigger("recording_off", context=context) # Send trigger to EEG system to stop recording
             
     # You can also run specific blocks 
     else:
