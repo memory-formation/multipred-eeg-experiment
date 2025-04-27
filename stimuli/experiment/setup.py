@@ -2,9 +2,8 @@ import datetime
 import json
 import logging
 import random
+import re
 from pathlib import Path
-
-from experiment.eyelinker import EyeLinker
 
 from psychos import Window
 from psychos.gui import Dialog
@@ -271,7 +270,7 @@ def generate_explicit_trials(block_modality="visual", visual_mapping=0, auditory
 
 
 
-def setup():
+def setup(batch):
 
     data_folder = Path(DATA_FOLDER)
     data_folder.mkdir(exist_ok=True)  # Create data folder if it does not exist
@@ -432,9 +431,24 @@ def setup():
     full_screen = data["full_screen"]
     screen_info = SCREENS[data["screen_info"]]
 
+    # define name for edf file
+    batch_str = str(batch) if batch else "manual"
+
+    # Remove 'sub-' prefix and non-alphanumerics, then convert to uppercase
+    match = re.match(r"sub-(\d+)", participant_id, re.IGNORECASE)
+    if match:
+        clean_id = f"SUB{match.group(1)}"
+    else:
+        # fallback: just sanitize to valid EDF format
+        clean_id = re.sub(r'[^A-Za-z0-9]', '', participant_id).upper()
+
+    # Compose final EDF name and clip to 8 characters if necessary
+    edf_basename = f"{clean_id}_{batch_str}"[:8]
+    edf_filename = f"{edf_basename}.edf"
+
     #  window for the experiment
     window = Window(background_color=BACKGROUND_COLOR, fullscreen=full_screen == "Yes")
 
-    return window, participant_data, phase, block, full_screen, screen_info
+    return window, participant_data, phase, block, full_screen, screen_info, edf_filename
 
 
