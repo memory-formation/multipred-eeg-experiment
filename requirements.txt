@@ -1,6 +1,5 @@
 numpy
 psychos
 pyglet==2.0.21
-pyparallel
 pyserial
 sr-research-pylink   
