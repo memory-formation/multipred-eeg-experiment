@@ -1,5 +1,5 @@
 import numpy as np
-from experiment.constants import (COLOR, FIXATION_FONT_SIZE, GABOR_PARAMS,
+from experiment.constants import (COLOR, GABOR_PARAMS,
                                   INSTRUCTIONS_FONT_SIZE, FIXATION_PARAMS)
 from psychos.core import Clock
 from psychos.sound import FlatEnvelope, Sine

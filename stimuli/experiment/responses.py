@@ -306,6 +306,6 @@ def save_block_data(participant_data, block_data, phase, block):
         completed[phase].append(block)
 
     # Save updated participant_data back to disk
-    participant_data_path = f"{DATA_FOLDER}/{participant_data['participant_id']}/{participant_data["participant_id"]}_info.json"
+    participant_data_path = f"{DATA_FOLDER}/{participant_data['participant_id']}/{participant_data['participant_id']}_info.json"
     with open(participant_data_path, "w") as f:
         json.dump(participant_data, f, indent=4)
