@@ -19,6 +19,9 @@ from psychos.sound import FlatEnvelope, Sine
 from psychos.visual import Text, Circle
 import pylink
 
+from pyglet.window.key import KeyStateHandler # used to emulate psychopy.event.get_key()
+from psychos.core.keys import _id_to_symbol
+
 def create_puretone(frequency, duration=0.2, amplitude=1):
     """
     Create a puretone sound stimulus.
@@ -71,6 +74,10 @@ class PsychosCustomDisplay(pylink.EyeLinkCustomDisplay):
 
         self.pal = []
         self.image_buffer = array.array('I')
+
+        self._ksh = KeyStateHandler() # used to emulate psychopy.event.get_key()
+        self.window.push_handlers(self._ksh)
+        self._prev_state = set()      # keys that were down last pol
 
         if all(i >= 0.5 for i in self.window.background_color):
             self.text_color = (0, 0, 0)
@@ -148,36 +155,11 @@ class PsychosCustomDisplay(pylink.EyeLinkCustomDisplay):
         """Not implimented."""
         pass
 
-    # def setup_image_display(self, width, height): ### ???
-    #     """Shows mouse when camera images are visible."""
-    #     psychopy.event.Mouse(visible=True)
-    #     self.window.flip()
-
     def image_title(self, title):
         """Updates title text."""
         self.image_title_object.text = title
 
-    # def draw_image_line(self, width, line, totlines, buff):
-    #     """Draws image from buffer."""
-    #     for i in buff:
-    #         if i >= len(self.pal):
-    #             self.image_buffer.append(self.pal[-1])
-    #         else:
-    #             self.image_buffer.append(self.pal[i])
-
-    #     if line == totlines:
-    #         bufferv = self.image_buffer.tostring()
-    #         image = PIL.Image.frombytes("RGBX", (width, totlines), bufferv)
-
-    #         psychopy_image = psychopy.visual.ImageStim(self.window, image=image)
-
-    #         psychopy_image.draw()
-    #         self.draw_cross_hair()
-    #         self.image_title_object.draw()
-    #         self.window.flip()
-
-    #         self.image_buffer = array.array('I')
-
+    
     def set_image_palette(self, r, g, b):
         """Defines image colors."""
         self.pal = []
@@ -186,10 +168,6 @@ class PsychosCustomDisplay(pylink.EyeLinkCustomDisplay):
         for r_, g_, b_ in zip(r, g, b):
             self.pal.append((b_ << 16) | g_ << 8 | r_)
 
-    # def exit_image_display(self):
-    #     """Hides mouse when camera images are no longer visible."""
-    #     psychopy.event.Mouse(visible=False)
-    #     self.window.flip()
 
     def clear_cal_display(self):
         """Clears calibration targets."""
@@ -203,7 +181,10 @@ class PsychosCustomDisplay(pylink.EyeLinkCustomDisplay):
         """Draws calibration targets."""
         self.cal_target_outer.position = (x - self.window_adj[0], y - self.window_adj[1])
         self.cal_target_inner.position = (x - self.window_adj[0], y - self.window_adj[1])
-
+        print("x = ", x)
+        print("y = ", y)
+        print("window_adj = ", self.window_adj)
+        print("calculated position + ", self.cal_target_inner.position)
         self.cal_target_outer.draw()
         self.cal_target_inner.draw()
 
@@ -231,27 +212,38 @@ class PsychosCustomDisplay(pylink.EyeLinkCustomDisplay):
 
     #     return keys
 
+    
     def get_input_key(self):
-        """Handles key events using psychos core.keys (Pyglet-based)."""
-        keys = []
+        """Handles key events using KeyStateHandler from pyglet."""
+        # make sure KeyStateHandler is up to date
+        self.window.dispatch_events()
         
-        # Probably waitkey method will be problematic
-        key_event = self.window.wait_key()  # returns a KeyEvent if one occurred
-        if key_event.key is not None:
-            # key_event.key is a string representing the pressed key
-            # Map it using self.keys if available:
-            if key_event.key in self.keys:
-                mapped_key = self.keys[key_event.key]
-            elif key_event.key in string.ascii_letters:
-                # convert a single character to its ordinal
-                mapped_key = ord(key_event.key)
+        current = {k for k, down in self._ksh.data.items() if down}   # keys pressed now
+        new_presses = current - self._prev_state                 # transitions
+        self._prev_state = current                        # update previous state
+        
+        keys = []
+        for key_id in new_presses:
+            keycode = _id_to_symbol(key_id).lower()
+            if keycode in self.keys:
+                key = self.keys[keycode]
+            elif len(keycode) == 1:
+                key = ord(keycode)
             else:
-                mapped_key = pylink.JUNK_KEY
+                key = pylink.JUNK_KEY
             
             mod = 256 #if modifiers['alt'] else 0
-            keys.append(pylink.KeyInput(mapped_key, mod))
-        
-        return keys
+            keys.append(pylink.KeyInput(key, mod))
+
+        return keys 
+    
+    def close_keyboard(self):
+        # Remove exactly the handler we added in __init__
+        try:
+            self.window.remove_handlers(self._ksh)
+        except Exception:
+            pass          # window already closed or handler already removed
+
 
     def alert_printf(self, msg):
         """Prints warnings, but doesn't kill session."""
@@ -278,7 +270,7 @@ class PsychosCustomDisplay(pylink.EyeLinkCustomDisplay):
         # ).draw()
 
     def draw_lozenge(self, x, y, width, height, colorindex):
-        """Draws ovals on image."""
+        """Intended to draw ovals on image. Not implemented in psychos, will draw a circle"""
         if colorindex in self.colors:
             color = self.colors[colorindex]
         else:
@@ -288,8 +280,57 @@ class PsychosCustomDisplay(pylink.EyeLinkCustomDisplay):
         x = round(x + (0.5 * width)) - 96
         y = round((160 - y) - (0.5 * height)) - 80
 
-        # psychopy.visual.Circle( # try to implement this later with psychos
-        #     self.window, units='pix', lineColor=color, pos=(x, y), size=(width, height)).draw()
+        # Not really an oval
+        Circle(radius=width, color='white', position=(x, y), window=self.window).draw()
+        
+
+   # ==== IMAGE DISPLAY NOT IMPLEMENTED IN THE CURRENT VERSION ====
+    # enabling the methods without implementation. Otherwise the program will crash if enter is pressed during calibration
+    def setup_image_display(self, width, height):
+        self.window.flip()            # clear screen
+    def draw_image_line(self, width, line, totlines, buff):
+        pass                          # you can ignore the buffer
+    def exit_image_display(self):
+        self.window.flip()
+
+    # Original functions below 
+
+    # def setup_image_display(self, width, height): 
+    #     """Shows mouse when camera images are visible."""
+    #     psychopy.event.Mouse(visible=True)
+    #     self.window.flip()
+
+    # def draw_image_line(self, width, line, totlines, buff):
+    #     """Draws image from buffer."""
+    #     for i in buff:
+    #         if i >= len(self.pal):
+    #             self.image_buffer.append(self.pal[-1])
+    #         else:
+    #             self.image_buffer.append(self.pal[i])
+
+    #     if line == totlines:
+    #         bufferv = self.image_buffer.tostring()
+    #         image = PIL.Image.frombytes("RGBX", (width, totlines), bufferv)
+
+    #         psychopy_image = psychopy.visual.ImageStim(self.window, image=image)
+
+    #         psychopy_image.draw()
+    #         self.draw_cross_hair()
+    #         self.image_title_object.draw()
+    #         self.window.flip()
+
+    #         self.image_buffer = array.array('I')
+
+
+    # def exit_image_display(self):
+    #     """Hides mouse when camera images are no longer visible."""
+    #     psychopy.event.Mouse(visible=False)
+    #     self.window.flip()
+
+    
+
+
+    # ===== MOUSE NOT IMPLEMENTED IN PSYCHOS =======
 
     # def get_mouse_state(self):
     #     """Gets mouse position."""
