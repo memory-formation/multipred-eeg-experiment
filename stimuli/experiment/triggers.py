@@ -105,7 +105,7 @@ def send_trigger(trigger_type, context=None):
         print(f"Failed to send trigger {trigger_type}: {e}")
         logger.warning(f"Failed to send trigger {trigger_type}: {e}")
 
-    TRACKER.send_message(trigger_type) # Send trigger to EyeLink tracker
+    TRACKER.send_message("trig" + str(triggerval)) # Send trigger to EyeLink tracker
 
     precise_delay_ms(16) # Wait for 16 ms to ensure the trigger is sent
     
