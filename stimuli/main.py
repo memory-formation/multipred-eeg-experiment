@@ -75,3 +75,10 @@ if __name__ == "__main__":
 
     # allow command line argument "batch" to run a specific batch of blocks
     parser = argparse.ArgumentParser()
+    parser.add_argument("--batch", type=str, choices=BATCH_SEQUENCES.keys(), help="Run predefined part of the experiment")
+    args = parser.parse_args()
+
+    try:
+        main(batch=args.batch)
+    except RuntimeError as e:
+        raise e
