@@ -12,3 +12,6 @@ python -m pip install --upgrade pip
 REM Step 4: Install dependencies
 pip install -r requirements.txt
 
+REM Step 5: Install pillow
+python -m pip install Pillow
+

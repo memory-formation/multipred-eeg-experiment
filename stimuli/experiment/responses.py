@@ -124,6 +124,7 @@ def explicit_response(window, key_mapping, trial, response_trigger, confidence_t
 
     text_widget = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR)
     text_widget.text = f"< {key_mapping['LEFT']}            {key_mapping['RIGHT']} >"
+    text_widget.position = (window.width * 0.5, window.height * 0.5)  # Center the text on the screen
     text_widget.draw()
     clock = Clock()  # This allows to init a clock to measure the RT
     window.flip()
@@ -153,18 +154,20 @@ def explicit_response(window, key_mapping, trial, response_trigger, confidence_t
 
     # Confidence rating
     if response != "NA":
+        width = window.width
+        height = window.height
         # Display the confidence rating question
-        question_text = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR, position=(0, .2))
+        question_text = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR, position=(width*0.5, height*0.6)) #(0, .2)
         question_text.text = "How confident are you in your response?"
-        rating1_text = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR, position=(-.5, -.2))
+        rating1_text = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR, position=(width*0.3 , height*0.4)) #(-.5, -.2)
         rating1_text.text = "1: not at all"
-        rating2_text = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR, position=(-.25, -.2))
+        rating2_text = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR, position=(width*0.4, height*0.4)) #(-.25, -.2)
         rating2_text.text = "2: a little"
-        rating3_text = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR, position=(0, -.2))
+        rating3_text = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR, position=(width*0.5, height*0.4)) #(0, -.2)
         rating3_text.text = "3: moderately"
-        rating4_text = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR, position=(.25, -.2)) 
+        rating4_text = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR, position=(width*0.6, height*0.4)) #(.25, -.2)
         rating4_text.text = "4: very"
-        rating5_text = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR, position=(.5, -.2))
+        rating5_text = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR, position=(width*0.7, height*0.4)) #(.5, -.2)
         rating5_text.text = "5: completely"
         question_text.draw()
         rating1_text.draw()

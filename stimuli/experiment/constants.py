@@ -4,11 +4,13 @@ SCREENS = {
     "hp_laptop": {"screen_name": "HP Laptop",
                 "distance_cm": 50,
                 "screen_width_cm":34.5,
-                "screen_width_px":1920,},
+                "screen_width_px":1920 *0.8,
+                "screen_height_px":1080 *0.8,},
     "VU_experiment": {"screen_name": "VU Experiment",
                 "distance_cm": 70,
                 "screen_width_cm":52.6,
-                "screen_width_px":1920,},
+                "screen_width_px":1920,
+                "screen_height_px":1080,},
 
 }
 

@@ -4,7 +4,7 @@ from datetime import datetime
 from experiment.constants import (FIXATION_PARAMS, GABOR_PARAMS,
                                   INITIAL_STAIRCASE, INSTRUCTIONS_TEXT,
                                   ISOTONIC_SOUNDS, PHASES, STAIRCASE_PARAMS,
-                                  STIM_INFO)
+                                  STIM_INFO, TRIGGER_MAPPING)
 from experiment.presentation import (create_puretone, draw_fixation,
                                      draw_gabor, show_instructions)
 from experiment.responses import (explicit_response, learning_response,
@@ -12,14 +12,15 @@ from experiment.responses import (explicit_response, learning_response,
                                   save_block_data, staircase, test_response)
 from experiment.triggers import send_trigger
 from psychos.core import Clock, Interval
+from psychos.visual import Text
 
 
 def localizer_phase(participant_data, block, window, full_screen, screen_info):
     # Instructions
     if block == 1:
-        show_instructions(window, INSTRUCTIONS_TEXT["localizer_start"])
+        show_instructions(window, INSTRUCTIONS_TEXT["localizer_start"], screen_info)
     else:
-        show_instructions(window, INSTRUCTIONS_TEXT["localizer_continue"])
+        show_instructions(window, INSTRUCTIONS_TEXT["localizer_continue"], screen_info)
    
     conditions = participant_data[f"conditions_localizer_{block}"]
     block_data = []
@@ -135,16 +136,16 @@ def localizer_phase(participant_data, block, window, full_screen, screen_info):
 def learning_phase(participant_data, block, window, full_screen, screen_info):
     # Instructions
     if block == 1:
-        show_instructions(window, INSTRUCTIONS_TEXT["learning_start"])
+        show_instructions(window, INSTRUCTIONS_TEXT["learning_start"], screen_info,)
     else:
-        show_instructions(window, INSTRUCTIONS_TEXT["learning_continue"])
+        show_instructions(window, INSTRUCTIONS_TEXT["learning_continue"], screen_info,)
    
 
     conditions = participant_data[f"conditions_learning_{block}"]
     key_mapping = participant_data[f"keymapping_learning_{block}"]
     block_data = []
 
-    for i, trial in enumerate(conditions[:2]):
+    for i, trial in enumerate(conditions[:10]):
         # Get trigger ids for the current trial type
         trial_type = f"{trial['v_trailing']}_{trial['v_pred']}_{trial['a_trailing']}_{trial['a_pred']}"
         trial_start_trigger =f"{trial_type}_trial_start"
@@ -240,16 +241,16 @@ def learning_phase(participant_data, block, window, full_screen, screen_info):
 def test_phase(participant_data, block, window, full_screen, screen_info):
     # Instructions
     if block == 1:
-        show_instructions(window, INSTRUCTIONS_TEXT["test_start"])
+        show_instructions(window, INSTRUCTIONS_TEXT["test_start"], screen_info,)
     else:
         remaining_blocks = PHASES["test_blocks"] - block + 1
-        show_instructions(window, INSTRUCTIONS_TEXT["test_continue"], block=block, remaining_blocks=remaining_blocks)
+        show_instructions(window, INSTRUCTIONS_TEXT["test_continue"], screen_info,block=block, remaining_blocks=remaining_blocks)
    
     conditions = participant_data[f"conditions_test_{block}"]
     key_mapping = participant_data[f"keymapping_test_{block}"]
     block_data = []
 
-    for i, trial in enumerate(conditions[:2]):
+    for i, trial in enumerate(conditions[:10]):
         # Get trigger ids for the current trial type
         trial_type = f"{trial['v_trailing']}_{trial['v_pred']}_{trial['a_trailing']}_{trial['a_pred']}"
         trial_start_trigger =f"{trial_type}_trial_start"
@@ -374,9 +375,9 @@ def explicit_phase(participant_data, block, window, full_screen, screen_info):
 
     # Instructions
     if conditions[0]["modality"] == "auditory":
-        show_instructions(window, INSTRUCTIONS_TEXT["explicit_phase"], modality_task="noticed that some sounds were also paired more frequently than others.", modality_verb="hear", modality="an auditory")
+        show_instructions(window, INSTRUCTIONS_TEXT["explicit_phase"], screen_info, modality_task="noticed that some sounds were also paired more frequently than others.", modality_verb="hear", modality="an auditory")
     else: # visual
-        show_instructions(window, INSTRUCTIONS_TEXT["explicit_phase"], modality_task="can remember the visual pairs that you learned at the start of the experiment.", modality_verb="see", modality="a visual")
+        show_instructions(window, INSTRUCTIONS_TEXT["explicit_phase"], screen_info, modality_task="can remember the visual pairs that you learned at the start of the experiment.", modality_verb="see", modality="a visual")
 
     for i, trial in enumerate(conditions):
         # Get trigger ids for the current trial type
@@ -456,7 +457,7 @@ def explicit_phase(participant_data, block, window, full_screen, screen_info):
         # ======= Response ========
         timestamp_dicts["start_response"] = trial_clock.time()
         #send_trigger("response")
-        response = explicit_response(window, key_mapping, trial, f"{trial_type}_response", f"{trial_type}_confidence", context)
+        response = explicit_response(window, key_mapping, trial, f"{trial_type}_response", f"{trial_type}_confidence", context, screen_info)
         timestamp_dicts["end_trial"] = trial_clock.time()
         block_data.append(
             {

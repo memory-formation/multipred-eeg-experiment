@@ -1,13 +1,12 @@
 import numpy as np
 from experiment.constants import (COLOR, GABOR_PARAMS,
                                   INSTRUCTIONS_FONT_SIZE, FIXATION_PARAMS)
-from psychos.core import Clock
 from psychos.sound import FlatEnvelope, Sine
-from psychos.visual import Gabor, Image, RawImage, Text, Circle
-from psychos.visual.synthetic import gabor_3d, gabor_2d
+from psychos.visual import Gabor, RawImage, Text, Circle
+from psychos.visual.synthetic import gabor_3d
 
 
-def show_instructions(window, text, **kwargs):
+def show_instructions(window, text, screen_info=None, **kwargs):
     if isinstance(text, str):
         text = [text]
 
@@ -15,6 +14,9 @@ def show_instructions(window, text, **kwargs):
     text = [line.format(**kwargs) for line in text]
 
     text_widget = Text(font_size=INSTRUCTIONS_FONT_SIZE, color=COLOR)
+    if screen_info:
+        text_widget.position = (screen_info["screen_width_px"] / 2, screen_info["screen_height_px"] / 2)
+
     for line in text:
         text_widget.text = line
         text_widget.draw()
@@ -115,6 +117,7 @@ def draw_gabor(orientation, screen_info, contrast=None, spatial_frequency=None, 
             contrast=contrast,
         )
 
+        image.position = (screen_info["screen_width_px"] / 2, screen_info["screen_height_px"] / 2)
         image.draw()
         
 def draw_fixation(fixation_color, screen_info, radius=FIXATION_PARAMS["radius"]):
@@ -128,6 +131,7 @@ def draw_fixation(fixation_color, screen_info, radius=FIXATION_PARAMS["radius"])
             radius, screen_info["distance_cm"], screen_info["screen_width_cm"], screen_info["screen_width_px"]
             )
     fixation = Circle(color=fixation_color, radius=size)
+    fixation.position = (screen_info["screen_width_px"] / 2, screen_info["screen_height_px"] / 2)
     fixation.draw()
 
 def create_puretone(frequency, duration=0.5, amplitude=1):

@@ -13,14 +13,17 @@ PsychoPyCustomDisplay -- inherited from pylink.EyeLinkCustomDisplay. Defines how
 """
 
 import array
-import string
 import warnings
-from psychos.sound import FlatEnvelope, Sine
-from psychos.visual import Text, Circle
-import pylink
 
-from pyglet.window.key import KeyStateHandler # used to emulate psychopy.event.get_key()
+import numpy as np
+import PIL
+import pylink
 from psychos.core.keys import _id_to_symbol
+from psychos.sound import FlatEnvelope, Sine
+from psychos.visual import Circle, RawImage, Text
+from pyglet.window.key import \
+    KeyStateHandler  # used to emulate psychopy.event.get_key()
+
 
 def create_puretone(frequency, duration=0.2, amplitude=1):
     """
@@ -179,12 +182,10 @@ class PsychosCustomDisplay(pylink.EyeLinkCustomDisplay):
 
     def draw_cal_target(self, x, y):
         """Draws calibration targets."""
-        self.cal_target_outer.position = (x - self.window_adj[0], y - self.window_adj[1])
-        self.cal_target_inner.position = (x - self.window_adj[0], y - self.window_adj[1])
-        print("x = ", x)
-        print("y = ", y)
-        print("window_adj = ", self.window_adj)
-        print("calculated position + ", self.cal_target_inner.position)
+        x_ps = x                                              # horizontal is unchanged
+        y_ps = self.window.height - y                         # invert the vertical axis
+        self.cal_target_outer.position = (x_ps, y_ps)
+        self.cal_target_inner.position = (x_ps, y_ps)
         self.cal_target_outer.draw()
         self.cal_target_inner.draw()
 
@@ -194,25 +195,6 @@ class PsychosCustomDisplay(pylink.EyeLinkCustomDisplay):
         """Provides audio feedback."""
         self.beeps[beepid].play()
 
-    # def get_input_key(self):
-    #     """Handles key events."""
-    #     keys = []
-
-    #     for keycode, modifiers in psychopy.event.getKeys(timeStamped=True):
-    #         if keycode in self.keys:
-    #             key = self.keys[keycode]
-    #         elif keycode in string.ascii_letters:
-    #             key = ord(keycode)
-    #         else:
-    #             key = pylink.JUNK_KEY
-
-    #         mod = 256 #if modifiers['alt'] else 0
-
-    #         keys.append(pylink.KeyInput(key, mod))
-
-    #     return keys
-
-    
     def get_input_key(self):
         """Handles key events using KeyStateHandler from pyglet."""
         # make sure KeyStateHandler is up to date
@@ -225,6 +207,7 @@ class PsychosCustomDisplay(pylink.EyeLinkCustomDisplay):
         keys = []
         for key_id in new_presses:
             keycode = _id_to_symbol(key_id).lower()
+            if keycode == 'enter': keycode = 'return' 
             if keycode in self.keys:
                 key = self.keys[keycode]
             elif len(keycode) == 1:
@@ -289,37 +272,41 @@ class PsychosCustomDisplay(pylink.EyeLinkCustomDisplay):
     def setup_image_display(self, width, height):
         self.window.flip()            # clear screen
     def draw_image_line(self, width, line, totlines, buff):
-        pass                          # you can ignore the buffer
+        """Draws image from buffer."""
+
+        if line == 1:
+            # Allocate a big numpy array ONCE at start
+            self.image_array = np.zeros((totlines, width, 3), dtype=np.uint8)
+
+        # Now fill one scanline at a time
+        for col, pix in enumerate(buff):
+            if pix >= len(self.pal):
+                color = self.pal[-1]
+            else:
+                color = self.pal[pix]
+
+            # Color is packed as 0xBBGGRR, need to unpack
+            r = color & 0xFF
+            g = (color >> 8) & 0xFF
+            b = (color >> 16) & 0xFF
+
+            self.image_array[line - 1, col, :] = [r, g, b]
+
+        if line == totlines:
+            # End of image: draw it
+            psychos_image = RawImage(self.image_array, window=self.window, position=(self.window.width/2, self.window.height/2))
+            psychos_image.draw()
+            self.draw_cross_hair()
+            self.image_title_object.draw()
+            self.window.flip()
+
+            # Clean up for next image
+            del self.image_array
+
     def exit_image_display(self):
         self.window.flip()
 
     # Original functions below 
-
-    # def setup_image_display(self, width, height): 
-    #     """Shows mouse when camera images are visible."""
-    #     psychopy.event.Mouse(visible=True)
-    #     self.window.flip()
-
-    # def draw_image_line(self, width, line, totlines, buff):
-    #     """Draws image from buffer."""
-    #     for i in buff:
-    #         if i >= len(self.pal):
-    #             self.image_buffer.append(self.pal[-1])
-    #         else:
-    #             self.image_buffer.append(self.pal[i])
-
-    #     if line == totlines:
-    #         bufferv = self.image_buffer.tostring()
-    #         image = PIL.Image.frombytes("RGBX", (width, totlines), bufferv)
-
-    #         psychopy_image = psychopy.visual.ImageStim(self.window, image=image)
-
-    #         psychopy_image.draw()
-    #         self.draw_cross_hair()
-    #         self.image_title_object.draw()
-    #         self.window.flip()
-
-    #         self.image_buffer = array.array('I')
 
 
     # def exit_image_display(self):

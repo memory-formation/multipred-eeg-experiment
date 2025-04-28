@@ -1,6 +1,13 @@
+# import ctypes
+# # do not let windows scale the app to the screen resolution, keep control of the window size
+# try:
+#     ctypes.windll.shcore.SetProcessDpiAwareness(2)  # 2 = PROCESS_PER_MONITOR_DPI_AWARE
+# except Exception as e:
+#     print("Could not set DPI awareness:", e)
+
 import argparse
 import os
-import re
+
 import experiment.eyelinker as eyelinker
 from experiment.constants import BATCH_SEQUENCES
 from experiment.phases import run_phase
@@ -16,7 +23,7 @@ def main(batch=None):
     """
     # === SETUP ===
     window, participant_data, phase, block, full_screen, screen_info, edf_filename = setup(batch)
-
+    print(window.width)
     # === EYE TRACKER ===
     # Initialize the EyeLink tracker
     tracker = eyelinker.EyeLinker(window, edf_filename, 'RIGHT')  # {data_folder}/{participant_id}/{participant_id}_eye.edf'
@@ -68,10 +75,3 @@ if __name__ == "__main__":
 
     # allow command line argument "batch" to run a specific batch of blocks
     parser = argparse.ArgumentParser()
-    parser.add_argument("--batch", type=str, choices=BATCH_SEQUENCES.keys(), help="Run predefined part of the experiment")
-    args = parser.parse_args()
-
-    try:
-        main(batch=args.batch)
-    except RuntimeError as e:
-        raise e

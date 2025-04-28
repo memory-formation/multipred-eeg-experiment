@@ -35,7 +35,7 @@ def _display_not_connected_text(window):
                     'Press "Q" to quit\n'
                     'Press "D" to continue in debug mode')
 
-    text_widget = Text(text=warning_text, font_size=INSTRUCTIONS_FONT_SIZE, color=COLOR)
+    text_widget = Text(text=warning_text, font_size=INSTRUCTIONS_FONT_SIZE, color=COLOR, position=(960,540))
     text_widget.draw()
     window.flip()
     #window.flip(clearBuffer=False)
@@ -153,7 +153,7 @@ class ConnectedEyeLinker:
         defaults = {
             'automatic_calibration_pacing': 1000,
             'background_color': (0, 0, 0),
-            'calibration_area_proportion': (0.5, 0.5),
+            'calibration_area_proportion': (0.7, 0.7),
             'calibration_type': 'HV9',
             'elcl_configuration': 'BTABLER',
             'enable_automatic_calibration': 'YES',
@@ -168,7 +168,7 @@ class ConnectedEyeLinker:
             'saccade_velocity_threshold': 30,
             'sample_rate': 1000,
             'target_sound': '',
-            'validation_area_proportion': (0.5, 0.5),
+            'validation_area_proportion': (0.7, 0.7),
         }
 
         if settings is None:
@@ -194,9 +194,8 @@ class ConnectedEyeLinker:
         else:
             self.send_command('binocular_enabled = NO')
 
-        self.send_command(
-            'calibration_area_proportion %f %f' % settings['calibration_area_proportion'])
-
+        self.send_command('calibration_area_proportion %f %f' % settings['calibration_area_proportion'])
+        
         self.send_command('calibration_type = %s' % settings['calibration_type'])
         self.send_command(
             'enable_automatic_calibration = %s' % settings['enable_automatic_calibration'])
@@ -210,9 +209,7 @@ class ConnectedEyeLinker:
         self.send_command(
             'saccade_velocity_threshold = %i' % settings['saccade_velocity_threshold'])
         self.send_command('sample_rate = %i' % settings['sample_rate'])
-        self.send_command(
-            'validation_area_proportion %f %f' % settings['validation_area_proportion'])
-
+        self.send_command('validation_area_proportion %f %f' % settings['validation_area_proportion'])
     def open_edf(self):
         """Opens the edf file, must be called before tracker is initialized."""
         self.tracker.openDataFile(self.edf_filename)
@@ -292,11 +289,6 @@ class ConnectedEyeLinker:
         self.window.wait_key(['space'])
         self.tracker.doTrackerSetup()
         
-
-        #self.window.flip()
-
-        #if 'space' in keys:
-            #self.tracker.doTrackerSetup()
 
     def drift_correct(self, position=None, setup=1):
         """Enters into drift correct mode.
@@ -428,7 +420,6 @@ class ConnectedEyeLinker:
         self.open_edf()
         self.initialize_tracker()
         self.send_tracking_settings()
-
         print('Initalization tests passed...')
 
     def testFunAndCalib(self):

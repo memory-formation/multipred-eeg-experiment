@@ -447,8 +447,11 @@ def setup(batch):
     edf_filename = f"{edf_basename}.edf"
 
     #  window for the experiment
-    window = Window(background_color=BACKGROUND_COLOR, fullscreen=full_screen == "Yes")
-
+    window = Window(background_color=BACKGROUND_COLOR, fullscreen=full_screen == "Yes", coordinates="px", width=screen_info["screen_width_px"], height=screen_info["screen_height_px"]) # important to set px coordinates for eyetracker calibration
+    print("input width: ", screen_info["screen_width_px"])
+    print("input height: ", screen_info["screen_height_px"])
+    print("window width: ", window.width)
+    print("window height: ", window.height)
     return window, participant_data, phase, block, full_screen, screen_info, edf_filename
 
 
