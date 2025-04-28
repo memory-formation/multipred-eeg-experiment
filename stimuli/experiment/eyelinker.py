@@ -246,22 +246,22 @@ class ConnectedEyeLinker:
         """Displays basic instructions to participant."""
         self.window.flip()
 
-        Circle(radius=18, color='white', window=self.window).draw()
-        Circle(radius=6, color='black', window=self.window).draw()
+        Circle(radius=18, color='white', position=(self.window.width*0.5, self.window.height * 0.5), window=self.window).draw()
+        Circle(radius=6, color='black', position=(self.window.width*0.5, self.window.height * 0.5), window=self.window).draw()
 
         Text(
             text='Sometimes a target that looks like this will appear.',
-            font_size=INSTRUCTIONS_FONT_SIZE, color=COLOR, position=(0, 0.2), window=self.window
+            font_size=INSTRUCTIONS_FONT_SIZE, color=COLOR, position=(self.window.width*0.5, self.window.height * 0.58), window=self.window
         ).draw()
 
         Text(
             text='We use it to calibrate the eye tracker. Stare at it whenever you see it.',
-            font_size=INSTRUCTIONS_FONT_SIZE, color=COLOR, position=(0, -0.15), window=self.window
+            font_size=INSTRUCTIONS_FONT_SIZE, color=COLOR, position=(self.window.width*0.5, self.window.height * 0.46), window=self.window
         ).draw()
 
         Text(
             text='Press space to continue.',
-            font_size=INSTRUCTIONS_FONT_SIZE, color=COLOR, position=(0, -0.2), window=self.window
+            font_size=INSTRUCTIONS_FONT_SIZE, color=COLOR, position=(self.window.width*0.5, self.window.height * 0.42), window=self.window
 
         ).draw(),
 
@@ -282,7 +282,7 @@ class ConnectedEyeLinker:
             )
 
         Text(
-            text=text, font_size=INSTRUCTIONS_FONT_SIZE, color=COLOR, position=(0, 0), window=self.window
+            text=text, font_size=INSTRUCTIONS_FONT_SIZE, color=COLOR, position=(self.window.width*0.5, self.window.height * 0.5), window=self.window
         ).draw()
 
         self.window.flip()
