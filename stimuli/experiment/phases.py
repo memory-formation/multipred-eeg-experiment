@@ -144,7 +144,7 @@ def learning_phase(participant_data, block, window, full_screen, screen_info):
     key_mapping = participant_data[f"keymapping_learning_{block}"]
     block_data = []
 
-    for i, trial in enumerate(conditions[:10]):
+    for i, trial in enumerate(conditions[:15]):
         # Get trigger ids for the current trial type
         trial_type = f"{trial['v_trailing']}_{trial['v_pred']}_{trial['a_trailing']}_{trial['a_pred']}"
         trial_start_trigger =f"{trial_type}_trial_start"
@@ -249,7 +249,7 @@ def test_phase(participant_data, block, window, full_screen, screen_info):
     key_mapping = participant_data[f"keymapping_test_{block}"]
     block_data = []
 
-    for i, trial in enumerate(conditions[:10]):
+    for i, trial in enumerate(conditions[:15]):
         # Get trigger ids for the current trial type
         trial_type = f"{trial['v_trailing']}_{trial['v_pred']}_{trial['a_trailing']}_{trial['a_pred']}"
         trial_start_trigger =f"{trial_type}_trial_start"
