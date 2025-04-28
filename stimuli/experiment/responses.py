@@ -3,12 +3,12 @@ import os
 
 from experiment.constants import COLOR, RESPONSE_FONT_SIZE, DATA_FOLDER
 from experiment.triggers import send_trigger
-from psychos.core import Clock
+from psychos.core import Clock, Interval
 from psychos.visual import Text
 
 
 def localizer_response(window, target_modality, target_count, context):
-    text_widget = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR)
+    text_widget = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR, position = (window.width / 2, window.height / 2))
     if target_modality == "visual":
         text_widget.text = f"How many targets did you see?"
     else: # target_modality == "auditory":
@@ -21,8 +21,10 @@ def localizer_response(window, target_modality, target_count, context):
     key_event = window.wait_key(["1", "2", "3", "4", "5", "6", "7", "8", "9"], clock=clock, max_wait=2)
     send_trigger("loc_response", context)  # Send the response trigger
     reaction_time = key_event.timestamp
+    interval = Interval(duration=16/1000)  # safety interval between response trigger and the start of next trial
+    interval.reset()
+    # organize response data during interval
     pressed_key = key_event.key
-
     if pressed_key is None:
         if target_count != 0: # at least one target
             outcome = 0
@@ -37,6 +39,8 @@ def localizer_response(window, target_modality, target_count, context):
         else: 
             outcome = 0
             fixation_color = "red"
+
+    interval.wait()  # Waits for the remaining time of the interval
     return {
         "pressed_key": pressed_key,
         "outcome": outcome,
@@ -48,7 +52,7 @@ def localizer_response(window, target_modality, target_count, context):
 
 
 def learning_response(window, key_mapping, trial, response_trigger, context):
-    text_widget = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR)
+    text_widget = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR, position = (window.width / 2, window.height / 2))
     text_widget.text = f"< {key_mapping['LEFT']}    neutral    {key_mapping['RIGHT']} >"
     text_widget.draw()
     clock = Clock()  # This allows to init a clock to measure the RT
@@ -57,6 +61,9 @@ def learning_response(window, key_mapping, trial, response_trigger, context):
     key_event = window.wait_key(["SPACE", "LEFT", "RIGHT"], clock=clock, max_wait=2)
     send_trigger(response_trigger, context)  # Send the response trigger
     reaction_time = key_event.timestamp
+    interval = Interval(duration=16/1000)  # safety interval between response trigger and the start of next trial
+    interval.reset()
+
     pressed_key = key_event.key
 
     if pressed_key is None:
@@ -74,6 +81,7 @@ def learning_response(window, key_mapping, trial, response_trigger, context):
             "green" if outcome else "red"
         )  # setting the fixation color based on the outcome to provide visual feedback
 
+    interval.wait()
     return {
         "pressed_key": pressed_key,
         "outcome": outcome,
@@ -86,7 +94,7 @@ def learning_response(window, key_mapping, trial, response_trigger, context):
 
 def test_response(window, key_mapping, trial, response_trigger, context):
 
-    text_widget = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR)
+    text_widget = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR, position = (window.width / 2, window.height / 2))
     text_widget.text = f"< {key_mapping['LEFT']}            {key_mapping['RIGHT']} >"
     text_widget.draw()
     clock = Clock()  # This allows to init a clock to measure the RT
@@ -95,6 +103,9 @@ def test_response(window, key_mapping, trial, response_trigger, context):
     key_event = window.wait_key(["LEFT", "RIGHT"], clock=clock, max_wait=2)
     send_trigger(response_trigger, context)  # Send the response trigger
     reaction_time = key_event.timestamp
+    interval = Interval(duration=16/1000)  # safety interval between response trigger and the start of next trial
+    interval.reset()
+
     pressed_key = key_event.key
 
     if pressed_key is None:
@@ -110,6 +121,7 @@ def test_response(window, key_mapping, trial, response_trigger, context):
             "green" if outcome else "red"
         )  # setting the fixation color based on the outcome to provide visual feedback
 
+    interval.wait()
     return {
         "pressed_key": pressed_key,
         "outcome": outcome,
@@ -122,7 +134,7 @@ def test_response(window, key_mapping, trial, response_trigger, context):
 
 def explicit_response(window, key_mapping, trial, response_trigger, confidence_trigger, context):
 
-    text_widget = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR)
+    text_widget = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR, position = (window.width / 2, window.height / 2))
     text_widget.text = f"< {key_mapping['LEFT']}            {key_mapping['RIGHT']} >"
     text_widget.position = (window.width * 0.5, window.height * 0.5)  # Center the text on the screen
     text_widget.draw()
@@ -132,6 +144,9 @@ def explicit_response(window, key_mapping, trial, response_trigger, confidence_t
     key_event1 = window.wait_key(["LEFT", "RIGHT"], clock=clock, max_wait=60)
     send_trigger(response_trigger, context)  # Send the response trigger
     reaction_time = key_event1.timestamp
+    interval = Interval(duration=16/1000)  # safety interval between response trigger and the start of next trial
+    interval.reset()
+
     pressed_key1 = key_event1.key if key_event1 else None
     response = key_mapping.get(pressed_key1, "NA")
     modality = trial["modality"]
@@ -181,6 +196,8 @@ def explicit_response(window, key_mapping, trial, response_trigger, confidence_t
         send_trigger(confidence_trigger, context)  # Send the confidence trigger
         confidence = key_event2.key if key_event2 else None
         confidence_RT = key_event2.timestamp 
+
+    interval.wait()
 
     return {  # returning the response data
         "pressed_key1": pressed_key1,
