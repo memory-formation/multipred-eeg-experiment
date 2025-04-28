@@ -13,6 +13,7 @@ from experiment.constants import BATCH_SEQUENCES
 from experiment.phases import run_phase
 from experiment.setup import setup
 from experiment.triggers import get_tracker, send_trigger
+from psychos.core import Interval
 
 
 def main(batch=None):
@@ -54,8 +55,11 @@ def main(batch=None):
 
             run_phase(p, b, window, participant_data, full_screen, screen_info)
 
+        interval = Interval(duration=1)  # safety interval to wait for the last trigger to be sent
+        interval.reset()
         if not mock_tracker: tracker.transfer_edf() # Send eye data at the end of each batch
         send_trigger("recording_off", context=context) # Send trigger to EEG system to stop recording
+        interval.wait() # Wait for the last trigger to be sent
             
     # You can also run specific blocks 
     else:
