@@ -4,7 +4,7 @@ from datetime import datetime
 from experiment.constants import (FIXATION_PARAMS, GABOR_PARAMS,
                                   INITIAL_STAIRCASE, INSTRUCTIONS_TEXT,
                                   ISOTONIC_SOUNDS, PHASES, STAIRCASE_PARAMS,
-                                  STIM_INFO, TRIGGER_MAPPING)
+                                  STIM_INFO)
 from experiment.presentation import (create_puretone, draw_fixation,
                                      draw_gabor, show_instructions)
 from experiment.responses import (explicit_response, learning_response,
@@ -12,7 +12,6 @@ from experiment.responses import (explicit_response, learning_response,
                                   save_block_data, staircase, test_response)
 from experiment.triggers import send_trigger
 from psychos.core import Clock, Interval
-from psychos.visual import Text
 
 
 def localizer_phase(participant_data, block, window, full_screen, screen_info):

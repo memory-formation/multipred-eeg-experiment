@@ -103,7 +103,7 @@ def send_trigger(trigger_type, context=None):
         logger.info(f"Trigger sent: {trigger_type}, value: {triggerval}{context_info}")
     except Exception as e:
         print(f"Failed to send trigger {trigger_type}: {e}")
-        logger.warning(f"Failed to send trigger {trigger_type}: {e}")
+        logger.warning(f"Failed to send EEG trigger {trigger_type}: {e}")
 
     TRACKER.send_message("trig" + str(triggerval)) # Send trigger to EyeLink tracker
 
