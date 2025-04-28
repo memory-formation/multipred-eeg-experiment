@@ -19,7 +19,7 @@ DATA_FOLDER = "data"
 
 # Constants for the experiment setup
 PHASES = {
-    "localizer_trials": 2,
+    "localizer_trials": 20,
     "localizer_blocks": ["multimodal", "multimodal"], # can be "visual", "auditory" or "multimodal"
     "localizer_targets": ["visual", "visual"], # When blocks are multimodal, this will define the target modality
     "learning_blocks": 2,
@@ -99,7 +99,7 @@ TRIGGER_MAPPING = generate_triggers(CONDITIONS_MAIN) # Generate dictionary that 
 # Instructions for the different blocks and phases
 INSTRUCTIONS_TEXT = {
     "localizer_start": [
-        "We are about to start the functioanl localizer phase.",
+        "We are about to start the functional localizer phase.",
         "You will see a sequence of 8 Gabor patches, accompanied by a sound.",
         "Your task is to count how many Gabor patches had a lower spatial frequency (lines more spread out)",
         "Press the space bar when you are ready to start.",
