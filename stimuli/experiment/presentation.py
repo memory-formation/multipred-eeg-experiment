@@ -73,11 +73,12 @@ def generate_neutral_gabor(screen_info, luminance_gain=1.0):
     data_neutral[..., :3] = np.clip(data_neutral[..., :3], 0, 255)
 
     data_neutral = data_neutral.astype("uint8")
-    print("Mean luminance - G0:", np.mean(data_0), "Neutral:", np.mean(data_neutral))
+    #print("Mean luminance - G0:", np.mean(data_0), "Neutral:", np.mean(data_neutral))
     image = RawImage(
         raw_image=data_neutral,
         width=size,
         height=size,
+        position=(screen_info["screen_width_px"] / 2, screen_info["screen_height_px"] / 2)
     )
 
     return image 
