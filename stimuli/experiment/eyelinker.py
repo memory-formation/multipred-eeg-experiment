@@ -130,8 +130,8 @@ class ConnectedEyeLinker:
         pl.flushGetkeyQueue()
         self.set_offline_mode()
 
-        self.send_command("screen_pixel_coords = 0 0 %d %d" % self.resolution)
-        self.send_message("DISPLAY_COORDS 0 0 %d %d" % self.resolution)
+        self.send_command("screen_pixel_coords = 0 0 %d %d" % (self.window.width-1, self.window.height-1)) # % self.resolution
+        self.send_message("DISPLAY_COORDS 0 0 %d %d" % (self.window.width-1, self.window.height-1)) # % self.resolution
 
         self.tracker.setFileEventFilter(
             "LEFT,RIGHT,FIXATION,SACCADE,BLINK,MESSAGE,BUTTON")
