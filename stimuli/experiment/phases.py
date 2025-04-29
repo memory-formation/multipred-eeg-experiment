@@ -96,11 +96,32 @@ def localizer_phase(participant_data, block, window, full_screen, screen_info):
                 )
                 draw_gabor(visual_ori, screen_info, spatial_frequency=spatial_frequency) # Preload gabor
                 draw_fixation(fixation_color, screen_info) # Preload fixation
-
+            
             interval.wait()  # Waits for the remaining time of the interval
-            send_trigger(f"loc_{visual_ori}_{auditory_freq}", context) # send trigger for the leading stimulus
+            
+            play_call_time = trial_clock.time()
             tone.play()  # play the leading tone
+            play_complete_time = trial_clock.time()
+
+            flip_call_time = trial_clock.time()
             window.flip()  # Flips the window to show the pre-loaded gabor
+            flip_complete_time = trial_clock.time()
+
+            trigger_send_time = trial_clock.time()
+            send_trigger(f"loc_{visual_ori}_{auditory_freq}", context) # send trigger for the leading stimulus
+            trigger_sent_complete_time = trial_clock.time()
+
+            # Print timings immediately for debugging (remove later for real experiments)
+            # print(f"Flip Called at {flip_call_time:.6f}s, Flip Completed at {flip_complete_time:.6f}s")
+            # print(f"play tone Called at {play_call_time:.6f}s, play tone Completed at {play_complete_time:.6f}s")
+            # print(f"Trial {i+1}: Trigger Sent at {trigger_send_time:.6f}s, Trigger Sent Complete at {trigger_sent_complete_time:.6f}s")
+            # print(f"Delay from play tone call to play complete: {(play_complete_time - play_call_time)*1000:.2f} ms")
+            # print(f"Delay from Flip Call to Flip Complete: {(flip_complete_time - flip_call_time)*1000:.2f} ms")
+            # print(f"Delay from completed flip to send trigger call: {(trigger_send_time - flip_complete_time)*1000:.2f} ms")
+            # print(f"Delay from completed flip to play complete call: {(play_complete_time - flip_complete_time)*1000:.2f} ms")
+            # print(f"Delay from send trigger call to send trigger complete: {(trigger_sent_complete_time - trigger_send_time)*1000:.2f} ms")
+            # print("--------------------------------------------------------")
+
             timestamp_dicts["start_leading"] = trial_clock.time()
             window.wait(STIM_INFO["leading_duration"])  # Waits for the leading duration
             # ======= ISI ========
@@ -144,7 +165,7 @@ def learning_phase(participant_data, block, window, full_screen, screen_info):
     key_mapping = participant_data[f"keymapping_learning_{block}"]
     block_data = []
 
-    for i, trial in enumerate(conditions[:15]):
+    for i, trial in enumerate(conditions):
         # Get trigger ids for the current trial type
         trial_type = f"{trial['v_trailing']}_{trial['v_pred']}_{trial['a_trailing']}_{trial['a_pred']}"
         trial_start_trigger =f"{trial_type}_trial_start"
@@ -169,13 +190,15 @@ def learning_phase(participant_data, block, window, full_screen, screen_info):
         # ====== Inter trial interval ==========
         iti_duration = random.uniform(*STIM_INFO["iti_range"])
         interval = Interval(duration=iti_duration)  # This allows to init a time counter of duration
-        send_trigger(trial_start_trigger, context) # send trigger for the start of the trial
         interval.reset()  # This allows to reset the time counter
+
+        send_trigger(trial_start_trigger, context) # send trigger for the start of the trial
+
         draw_fixation(fixation_color, screen_info)  # draw the fixation dot with feedback color
         window.flip()
         timestamp_dicts["start_fixation"] = trial_clock.time()
 
-        # ======= Leding stimuli ========
+        # ======= Leading stimuli ========
         # pre-load stimuli
         fixation_color = FIXATION_PARAMS["color"]  # reset the fixation color to the default color for the ISI
         leading_tone = create_puretone(
@@ -186,16 +209,28 @@ def learning_phase(participant_data, block, window, full_screen, screen_info):
         interval.wait()  # Waits for the remaining time of the interval
 
         # presentation
-        send_trigger(cue_onset_trigger, context) # send trigger for the leading stimulus
         leading_tone.play()  # play the leading tone
+
+        draw_cue_call_time = trial_clock.time()
         window.flip()  # Flips the window to show the pre-loaded gabor
+        draw_cue_complete_time = trial_clock.time()
+
+        cue_trigger_send_time = trial_clock.time()
+        send_trigger(cue_onset_trigger, context) # send trigger for the leading stimulus
+        cue_trigger_complete_time = trial_clock.time()
+
         timestamp_dicts["start_leading"] = trial_clock.time()
         window.wait(STIM_INFO["leading_duration"])  # Waits for the leading duration
-
+        draw_finished_time = trial_clock.time()
         # ======= ISI ========
         interval = Interval(duration=STIM_INFO["isi_duration"])
         interval.reset()
+        isi_interval_reset_time = trial_clock.time()
+
+        isi_trigger_send_time = trial_clock.time()
         send_trigger(isi_trigger, context) # send trigger for the ISI)
+        isi_trigger_complete_time = trial_clock.time()
+
         draw_fixation(fixation_color, screen_info)
         window.flip()
         timestamp_dicts["start_isi"] = trial_clock.time()
@@ -208,13 +243,26 @@ def learning_phase(participant_data, block, window, full_screen, screen_info):
         draw_gabor(trial["v_trailing"], screen_info)
         draw_fixation(fixation_color, screen_info)
         interval.wait()
+        isi_interval_complete_time = trial_clock.time()
 
         # presentation
-        send_trigger(target_onset_trigger, context) # send trigger for the trailing stimulus
         trailing_tone.play()
-        window.flip()
+        
+        draw_target_call_time = trial_clock.time()
+        window.flip()  # Flips the window to show the pre-loaded gabor
+        draw_target_complete_time = trial_clock.time()
+
+        target_trigger_send_time = trial_clock.time()
+        send_trigger(target_onset_trigger, context) # send trigger for the trailing stimulus
+        target_trigger_complete_time = trial_clock.time()
+
         timestamp_dicts["start_trailing"] = trial_clock.time()
         window.wait(STIM_INFO["target_duration"])
+
+        # print(f"cue presentation - trigger delay: {(draw_cue_complete_time - draw_cue_complete_time)*1000:.2f} ms")
+        # print(f"ISI delay: {(isi_interval_complete_time - isi_interval_reset_time)*1000:.2f} ms")
+        # print(f"target presentation - trigger delay: {(draw_target_complete_time - target_trigger_send_time)*1000:.2f} ms")
+        # print(f"target draw - target finish: {(draw_finished_time - draw_cue_complete_time)*1000:.2f} ms")
 
         # ======= Response ========
         timestamp_dicts["start_response"] = trial_clock.time()
@@ -249,7 +297,7 @@ def test_phase(participant_data, block, window, full_screen, screen_info):
     key_mapping = participant_data[f"keymapping_test_{block}"]
     block_data = []
 
-    for i, trial in enumerate(conditions[:15]):
+    for i, trial in enumerate(conditions):
         # Get trigger ids for the current trial type
         trial_type = f"{trial['v_trailing']}_{trial['v_pred']}_{trial['a_trailing']}_{trial['a_pred']}"
         trial_start_trigger =f"{trial_type}_trial_start"
@@ -284,8 +332,10 @@ def test_phase(participant_data, block, window, full_screen, screen_info):
         # ====== Inter trial interval ==========
         iti_duration = random.uniform(*STIM_INFO["iti_range"])
         interval = Interval(duration=iti_duration)  # This allows to init a time counter of duration
-        send_trigger(trial_start_trigger, context) # send trigger for the start of the trial
         interval.reset()  # This allows to reset the time counter
+
+        send_trigger(trial_start_trigger, context) # send trigger for the start of the trial
+
         draw_fixation(fixation_color, screen_info)  # draw the fixation dot with feedback color
         window.flip()
         timestamp_dicts["start_fixation"] = trial_clock.time()
@@ -301,18 +351,21 @@ def test_phase(participant_data, block, window, full_screen, screen_info):
         interval.wait()  # Waits for the remaining time of the interval
 
         # presentation
-        send_trigger(cue_onset_trigger, context) # send trigger for the leading stimulus
         leading_tone.play()  # play the leading tone
         window.flip()  # Flips the window to show the pre-loaded gabor
+        send_trigger(cue_onset_trigger, context) # send trigger for the leading stimulus
+        
         timestamp_dicts["start_leading"] = trial_clock.time()
         window.wait(STIM_INFO["leading_duration"])  # Waits for the leading duration
 
         # ======= ISI ========
         interval = Interval(duration=STIM_INFO["isi_duration"])
         interval.reset()
+
+        send_trigger(isi_trigger, context) # send trigger for the ISI)
         draw_fixation(fixation_color, screen_info)
         window.flip()
-        send_trigger(isi_trigger, context) # send trigger for the ISI)
+        
         timestamp_dicts["start_isi"] = trial_clock.time()
 
         # ======= Trailing stimuli ========
@@ -329,9 +382,9 @@ def test_phase(participant_data, block, window, full_screen, screen_info):
         interval.wait()
 
         # presentation
-        send_trigger(target_onset_trigger, context) # send trigger for the trailing stimulus
         trailing_tone.play()
         window.flip()
+        send_trigger(target_onset_trigger, context) # send trigger for the trailing stimulus
         timestamp_dicts["start_trailing"] = trial_clock.time()
         window.wait(STIM_INFO["target_duration"])
 
@@ -401,12 +454,13 @@ def explicit_phase(participant_data, block, window, full_screen, screen_info):
         # ====== Inter trial interval ==========
         iti_duration = random.uniform(*STIM_INFO["iti_range"])
         interval = Interval(duration=iti_duration)  # This allows to init a time counter of duration
-        send_trigger(f"{trial_type}_trial_start", context) # send trigger for the start of the trial
         interval.reset()  # This allows to reset the time counter
+
+        send_trigger(f"{trial_type}_trial_start", context) # send trigger for the start of the triall
+
         draw_fixation(fixation_color, screen_info)  # draw the fixation dot with feedback color
         window.flip()
         timestamp_dicts["start_fixation"] = trial_clock.time()
-
         # ======= Leding stimuli ========
         # pre-load stimuli
         if trial["modality"] == "auditory":
@@ -420,20 +474,21 @@ def explicit_phase(participant_data, block, window, full_screen, screen_info):
         interval.wait()  
 
         # presentation
-        send_trigger(f"{trial_type}_cue_onset", context) # send trigger for the leading stimulus
         if trial["modality"] == "auditory": leading_tone.play()  # play the leading tone only in auditory block
         window.flip()  # Flips the window to show the pre-loaded gabor and fixation
+        send_trigger(f"{trial_type}_cue_onset", context) # send trigger for the leading stimulus
         timestamp_dicts["start_leading"] = trial_clock.time()
         window.wait(STIM_INFO["leading_duration"])  # Waits for the leading duration
 
         # ======= ISI ========
         interval = Interval(duration=STIM_INFO["isi_duration"])
         interval.reset()
+
+        send_trigger(f"{trial_type}_isi", context) # send trigger for the ISI)
         draw_fixation(fixation_color, screen_info)
         window.flip()
-        send_trigger(f"{trial_type}_isi", context) # send trigger for the ISI)
+        
         timestamp_dicts["start_isi"] = trial_clock.time()
-
         # ======= Trailing stimuli ========
         # pre-load stimuli
         if trial["modality"] == "auditory":
@@ -447,16 +502,15 @@ def explicit_phase(participant_data, block, window, full_screen, screen_info):
         interval.wait()
 
         # presentation
-        send_trigger(f"{trial_type}_target_onset", context) # send trigger for the trailing stimulus
         if trial["modality"] == "auditory": trailing_tone.play()  # play the leading tone only in auditory block
         window.flip()
+        send_trigger(f"{trial_type}_target_onset", context) # send trigger for the trailing stimulus
         timestamp_dicts["start_trailing"] = trial_clock.time()
         window.wait(STIM_INFO["target_duration"])
 
         # ======= Response ========
         timestamp_dicts["start_response"] = trial_clock.time()
-        #send_trigger("response")
-        response = explicit_response(window, key_mapping, trial, f"{trial_type}_response", f"{trial_type}_confidence", context, screen_info)
+        response = explicit_response(window, key_mapping, trial, f"{trial_type}_response", f"{trial_type}_confidence", context)
         timestamp_dicts["end_trial"] = trial_clock.time()
         block_data.append(
             {
