@@ -99,17 +99,17 @@ def localizer_phase(participant_data, block, window, full_screen, screen_info):
             
             interval.wait()  # Waits for the remaining time of the interval
             
-            play_call_time = trial_clock.time()
+            #play_call_time = trial_clock.time()
             tone.play()  # play the leading tone
-            play_complete_time = trial_clock.time()
+            #play_complete_time = trial_clock.time()
 
-            flip_call_time = trial_clock.time()
+            #flip_call_time = trial_clock.time()
             window.flip()  # Flips the window to show the pre-loaded gabor
-            flip_complete_time = trial_clock.time()
+            #flip_complete_time = trial_clock.time()
 
-            trigger_send_time = trial_clock.time()
+            #trigger_send_time = trial_clock.time()
             send_trigger(f"loc_{visual_ori}_{auditory_freq}", context) # send trigger for the leading stimulus
-            trigger_sent_complete_time = trial_clock.time()
+            #trigger_sent_complete_time = trial_clock.time()
 
             # Print timings immediately for debugging (remove later for real experiments)
             # print(f"Flip Called at {flip_call_time:.6f}s, Flip Completed at {flip_complete_time:.6f}s")
