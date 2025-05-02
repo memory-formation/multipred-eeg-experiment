@@ -421,7 +421,7 @@ def setup(batch):
         dialog3.add_field(name="block", default=PHASES["explicit_blocks"], label="Block", format=int)
 
     dialog3.add_field(name="full_screen", default="Yes", label="Full screen", choices=["Yes", "No"])
-    dialog3.add_field(name="screen_info", default="hp_laptop", label="experiment_screen", choices=["hp_laptop", "VU_experiment"])
+    dialog3.add_field(name="screen_info", default="hp_laptop", label="experiment_screen", choices=["VU_experiment", "hp_laptop"])
     data = dialog3.show()
     if not data:
         raise RuntimeError("User cancelled the dialog.")
