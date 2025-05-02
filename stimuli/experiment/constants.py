@@ -134,8 +134,14 @@ INSTRUCTIONS_TEXT = {
         "Press the space bar to start.",
     ],
 
+    "test_block_end": [
+        "You have completed the block! {remaining_blocks} more to go.",
+        "You made a {block_performance}% of correct responses in this block.",
+        "Whenever you are ready, press the space bar to continue to the next block.",
+    ],
+
     "test_continue": [
-        "You are about to start block {block}! {remaining_blocks} more to go.", 
+        "You are about to start block {block}!", 
         'The task remains the same: indicate whether the second orientation is a "normal" or a "deviant" diagonal.', 
         "Press the space bar to start.",
     ],

@@ -292,7 +292,16 @@ def load_last_staircase_data(participant_data, block):
     else:
         raise FileNotFoundError(f"No previous block data found at: {filepath}")
     
+def calculate_block_performance(block_data):
+    """
+    Calculate the proportion of correct responses in a block to show the participant.
+    """
+    total_trials = len(block_data)
+    correct_trials = sum(1 for trial in block_data if trial.get("outcome") == 1)
+    
+    proportion_correct = correct_trials / total_trials if total_trials > 0 else 0.0
 
+    return proportion_correct * 100  # Convert to percentage
 
 def save_block_data(participant_data, block_data, phase, block):
     """

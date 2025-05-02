@@ -7,7 +7,8 @@ from experiment.constants import (FIXATION_PARAMS, GABOR_PARAMS,
                                   STIM_INFO)
 from experiment.presentation import (create_puretone, draw_fixation,
                                      draw_gabor, show_instructions)
-from experiment.responses import (explicit_response, learning_response,
+from experiment.responses import (calculate_block_performance,
+                                  explicit_response, learning_response,
                                   load_last_staircase_data, localizer_response,
                                   save_block_data, staircase, test_response)
 from experiment.triggers import send_trigger
@@ -211,25 +212,25 @@ def learning_phase(participant_data, block, window, full_screen, screen_info):
         # presentation
         leading_tone.play()  # play the leading tone
 
-        draw_cue_call_time = trial_clock.time()
+        #draw_cue_call_time = trial_clock.time()
         window.flip()  # Flips the window to show the pre-loaded gabor
-        draw_cue_complete_time = trial_clock.time()
+        #draw_cue_complete_time = trial_clock.time()
 
-        cue_trigger_send_time = trial_clock.time()
+        #cue_trigger_send_time = trial_clock.time()
         send_trigger(cue_onset_trigger, context) # send trigger for the leading stimulus
-        cue_trigger_complete_time = trial_clock.time()
+        #cue_trigger_complete_time = trial_clock.time()
 
         timestamp_dicts["start_leading"] = trial_clock.time()
         window.wait(STIM_INFO["leading_duration"])  # Waits for the leading duration
-        draw_finished_time = trial_clock.time()
+        #draw_finished_time = trial_clock.time()
         # ======= ISI ========
         interval = Interval(duration=STIM_INFO["isi_duration"])
         interval.reset()
-        isi_interval_reset_time = trial_clock.time()
+        #isi_interval_reset_time = trial_clock.time()
 
-        isi_trigger_send_time = trial_clock.time()
+        #isi_trigger_send_time = trial_clock.time()
         send_trigger(isi_trigger, context) # send trigger for the ISI)
-        isi_trigger_complete_time = trial_clock.time()
+        #isi_trigger_complete_time = trial_clock.time()
 
         draw_fixation(fixation_color, screen_info)
         window.flip()
@@ -243,18 +244,18 @@ def learning_phase(participant_data, block, window, full_screen, screen_info):
         draw_gabor(trial["v_trailing"], screen_info)
         draw_fixation(fixation_color, screen_info)
         interval.wait()
-        isi_interval_complete_time = trial_clock.time()
+        #isi_interval_complete_time = trial_clock.time()
 
         # presentation
         trailing_tone.play()
         
-        draw_target_call_time = trial_clock.time()
+        #draw_target_call_time = trial_clock.time()
         window.flip()  # Flips the window to show the pre-loaded gabor
-        draw_target_complete_time = trial_clock.time()
+        #draw_target_complete_time = trial_clock.time()
 
-        target_trigger_send_time = trial_clock.time()
+        #target_trigger_send_time = trial_clock.time()
         send_trigger(target_onset_trigger, context) # send trigger for the trailing stimulus
-        target_trigger_complete_time = trial_clock.time()
+        #target_trigger_complete_time = trial_clock.time()
 
         timestamp_dicts["start_trailing"] = trial_clock.time()
         window.wait(STIM_INFO["target_duration"])
@@ -290,8 +291,7 @@ def test_phase(participant_data, block, window, full_screen, screen_info):
     if block == 1:
         show_instructions(window, INSTRUCTIONS_TEXT["test_start"], screen_info,)
     else:
-        remaining_blocks = PHASES["test_blocks"] - block + 1
-        show_instructions(window, INSTRUCTIONS_TEXT["test_continue"], screen_info,block=block, remaining_blocks=remaining_blocks)
+        show_instructions(window, INSTRUCTIONS_TEXT["test_continue"], screen_info,block=block)
    
     conditions = participant_data[f"conditions_test_{block}"]
     key_mapping = participant_data[f"keymapping_test_{block}"]
@@ -414,6 +414,17 @@ def test_phase(participant_data, block, window, full_screen, screen_info):
             }
         )
 
+    # draw fixation dot with last feedback color
+    draw_fixation(response["fixation_color"], screen_info)  # draw the fixation dot with feedback color
+    window.flip()
+    window.wait(1) 
+
+    # Calculate block performance and show to the participant
+    block_performance = calculate_block_performance(block_data)
+    remaining_blocks = PHASES["test_blocks"] - block 
+    show_instructions(window, INSTRUCTIONS_TEXT["test_block_end"], screen_info, 
+                      remaining_blocks=remaining_blocks, block_performance=block_performance
+                      )
 
     # Save the block data
     save_block_data(participant_data, block_data, "test", block)
