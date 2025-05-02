@@ -2,7 +2,7 @@ import numpy as np
 from experiment.constants import (COLOR, GABOR_PARAMS,
                                   INSTRUCTIONS_FONT_SIZE, FIXATION_PARAMS)
 from psychos.sound import FlatEnvelope, Sine
-from psychos.visual import Gabor, RawImage, Text, Circle
+from psychos.visual import Gabor, RawImage, Text, Circle, Rectangle
 from psychos.visual.synthetic import gabor_3d
 
 
@@ -134,6 +134,18 @@ def draw_fixation(fixation_color, screen_info, radius=FIXATION_PARAMS["radius"])
     fixation = Circle(color=fixation_color, radius=size)
     fixation.position = (screen_info["screen_width_px"] / 2, screen_info["screen_height_px"] / 2)
     fixation.draw()
+
+def draw_white_square(screen_info, size=1):
+    """
+    Draw a white square on the screen.
+    """
+    # Convert size from degrees to pixels
+    size_px, _ = visual_angle_to_pixels(
+            size, screen_info["distance_cm"], screen_info["screen_width_cm"], screen_info["screen_width_px"]
+            )
+    square = Rectangle(width=size_px, height=size_px, color="white")
+    square.position = (screen_info["screen_width_px"] / 2, screen_info["screen_height_px"] * 0.1)
+    square.draw()
 
 def create_puretone(frequency, duration=0.5, amplitude=1):
     """

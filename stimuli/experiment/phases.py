@@ -6,7 +6,8 @@ from experiment.constants import (FIXATION_PARAMS, GABOR_PARAMS,
                                   ISOTONIC_SOUNDS, PHASES, STAIRCASE_PARAMS,
                                   STIM_INFO)
 from experiment.presentation import (create_puretone, draw_fixation,
-                                     draw_gabor, show_instructions)
+                                     draw_gabor, draw_white_square,
+                                     show_instructions)
 from experiment.responses import (calculate_block_performance,
                                   explicit_response, learning_response,
                                   load_last_staircase_data, localizer_response,
@@ -14,6 +15,7 @@ from experiment.responses import (calculate_block_performance,
 from experiment.triggers import send_trigger
 from psychos.core import Clock, Interval
 
+square_test = True
 
 def localizer_phase(participant_data, block, window, full_screen, screen_info):
     # Instructions
@@ -43,10 +45,11 @@ def localizer_phase(participant_data, block, window, full_screen, screen_info):
         # ====== Inter trial interval ==========
         iti_duration = random.uniform(*STIM_INFO["iti_range"])
         interval = Interval(duration=iti_duration)  # This allows to init a time counter of duration
-        send_trigger("loc_trial_start", context) # send trigger for the start of the trial
         interval.reset()  # This allows to reset the time counter
         draw_fixation(fixation_color, screen_info)  # draw the fixation dot with feedback color
+        #if square_test: draw_white_square(screen_info) # draw a white square for testing purposes
         window.flip()
+        send_trigger("loc_trial_start", context) # send trigger for the start of the trial
         timestamp_dicts["start_fixation"] = trial_clock.time()
         
         # ======= Stimuli sequence ========
@@ -98,6 +101,7 @@ def localizer_phase(participant_data, block, window, full_screen, screen_info):
                 draw_gabor(visual_ori, screen_info, spatial_frequency=spatial_frequency) # Preload gabor
                 draw_fixation(fixation_color, screen_info) # Preload fixation
             
+            if square_test: draw_white_square(screen_info) # draw a white square for testing purposes
             interval.wait()  # Waits for the remaining time of the interval
             
             #play_call_time = trial_clock.time()
@@ -128,10 +132,12 @@ def localizer_phase(participant_data, block, window, full_screen, screen_info):
             # ======= ISI ========
             interval = Interval(duration=STIM_INFO["isi_duration"])
             interval.reset()
-            send_trigger("loc_isi", context) # send trigger for the ISI
             draw_fixation(fixation_color, screen_info)  # draw the fixation dot with feedback color
+            #if square_test: draw_white_square(screen_info)
             window.flip()
+            send_trigger("loc_isi", context) # send trigger for the ISI
             timestamp_dicts["start_isi"] = trial_clock.time()
+            interval.wait()  # Waits for the ISI duration
         
         # ======= Response ========
         timestamp_dicts["start_response"] = trial_clock.time()
@@ -193,10 +199,12 @@ def learning_phase(participant_data, block, window, full_screen, screen_info):
         interval = Interval(duration=iti_duration)  # This allows to init a time counter of duration
         interval.reset()  # This allows to reset the time counter
 
+        draw_fixation(fixation_color, screen_info)  # draw the fixation dot with feedback color
+        #if square_test: draw_white_square(screen_info)
+        window.flip()
+
         send_trigger(trial_start_trigger, context) # send trigger for the start of the trial
 
-        draw_fixation(fixation_color, screen_info)  # draw the fixation dot with feedback color
-        window.flip()
         timestamp_dicts["start_fixation"] = trial_clock.time()
 
         # ======= Leading stimuli ========
@@ -207,6 +215,7 @@ def learning_phase(participant_data, block, window, full_screen, screen_info):
         )
         draw_gabor(trial["v_leading"], screen_info)  # initiate the leading gabor,
         draw_fixation(fixation_color, screen_info)  # Preload fixation
+        if square_test: draw_white_square(screen_info)
         interval.wait()  # Waits for the remaining time of the interval
 
         # presentation
@@ -227,13 +236,12 @@ def learning_phase(participant_data, block, window, full_screen, screen_info):
         interval = Interval(duration=STIM_INFO["isi_duration"])
         interval.reset()
         #isi_interval_reset_time = trial_clock.time()
-
+        draw_fixation(fixation_color, screen_info)
+        window.flip()
         #isi_trigger_send_time = trial_clock.time()
         send_trigger(isi_trigger, context) # send trigger for the ISI)
         #isi_trigger_complete_time = trial_clock.time()
-
-        draw_fixation(fixation_color, screen_info)
-        window.flip()
+        
         timestamp_dicts["start_isi"] = trial_clock.time()
 
         # ======= Trailing stimuli ========
@@ -243,6 +251,7 @@ def learning_phase(participant_data, block, window, full_screen, screen_info):
         )
         draw_gabor(trial["v_trailing"], screen_info)
         draw_fixation(fixation_color, screen_info)
+        if square_test: draw_white_square(screen_info) # draw a white square for testing purposes
         interval.wait()
         #isi_interval_complete_time = trial_clock.time()
 
@@ -333,11 +342,11 @@ def test_phase(participant_data, block, window, full_screen, screen_info):
         iti_duration = random.uniform(*STIM_INFO["iti_range"])
         interval = Interval(duration=iti_duration)  # This allows to init a time counter of duration
         interval.reset()  # This allows to reset the time counter
+        draw_fixation(fixation_color, screen_info)  # draw the fixation dot with feedback color
+        window.flip()
 
         send_trigger(trial_start_trigger, context) # send trigger for the start of the trial
 
-        draw_fixation(fixation_color, screen_info)  # draw the fixation dot with feedback color
-        window.flip()
         timestamp_dicts["start_fixation"] = trial_clock.time()
 
         # ======= Leding stimuli ========
@@ -348,6 +357,7 @@ def test_phase(participant_data, block, window, full_screen, screen_info):
             )
         draw_gabor(trial["v_leading"], screen_info)  # initiate the leading gabor,
         draw_fixation(fixation_color, screen_info)  # Preload fixation
+        if square_test: draw_white_square(screen_info) # draw a white square for testing purposes
         interval.wait()  # Waits for the remaining time of the interval
 
         # presentation
@@ -361,10 +371,10 @@ def test_phase(participant_data, block, window, full_screen, screen_info):
         # ======= ISI ========
         interval = Interval(duration=STIM_INFO["isi_duration"])
         interval.reset()
-
-        send_trigger(isi_trigger, context) # send trigger for the ISI)
         draw_fixation(fixation_color, screen_info)
         window.flip()
+
+        send_trigger(isi_trigger, context) # send trigger for the ISI)
         
         timestamp_dicts["start_isi"] = trial_clock.time()
 
@@ -379,6 +389,7 @@ def test_phase(participant_data, block, window, full_screen, screen_info):
 
         draw_gabor(trial["v_trailing"] + current_ori_diff, screen_info)  # draw the trailing gabor
         draw_fixation(fixation_color, screen_info)  # Preload fixation
+        if square_test: draw_white_square(screen_info) # draw a white square for testing purposes
         interval.wait()
 
         # presentation
@@ -466,11 +477,11 @@ def explicit_phase(participant_data, block, window, full_screen, screen_info):
         iti_duration = random.uniform(*STIM_INFO["iti_range"])
         interval = Interval(duration=iti_duration)  # This allows to init a time counter of duration
         interval.reset()  # This allows to reset the time counter
+        draw_fixation(fixation_color, screen_info)  # draw the fixation dot with feedback color
+        window.flip()
 
         send_trigger(f"{trial_type}_trial_start", context) # send trigger for the start of the triall
 
-        draw_fixation(fixation_color, screen_info)  # draw the fixation dot with feedback color
-        window.flip()
         timestamp_dicts["start_fixation"] = trial_clock.time()
         # ======= Leding stimuli ========
         # pre-load stimuli
@@ -482,6 +493,8 @@ def explicit_phase(participant_data, block, window, full_screen, screen_info):
         else:
             draw_gabor(trial["v_leading"], screen_info)  # initiate the leading gabor,
             draw_fixation(fixation_color, screen_info)
+
+        if square_test: draw_white_square(screen_info) # draw a white square for testing purposes
         interval.wait()  
 
         # presentation
@@ -510,6 +523,8 @@ def explicit_phase(participant_data, block, window, full_screen, screen_info):
         else:
             draw_gabor(trial["v_trailing"], screen_info)
             draw_fixation(fixation_color, screen_info)
+        
+        if square_test: draw_white_square(screen_info) # draw a white square for testing purposes
         interval.wait()
 
         # presentation
