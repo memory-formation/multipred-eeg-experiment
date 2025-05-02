@@ -331,14 +331,14 @@ def setup(batch):
         participant_data["visual_mapping"] = random.choice([0, 1])
 
         # Key mappings
-        learning_key_mapping1 = {"LEFT": "frequent", "RIGHT": "infrequent", "SPACE": "neutral"}
-        learning_key_mapping2 = {"LEFT": "infrequent", "RIGHT": "frequent", "SPACE": "neutral"}
+        learning_key_mapping1 = {"Z": "frequent", "M": "infrequent", "SPACE": "neutral"}
+        learning_key_mapping2 = {"Z": "infrequent", "M": "frequent", "SPACE": "neutral"}
 
-        test_key_mapping1 = {"LEFT": "deviant", "RIGHT": "normal"}
-        test_key_mapping2 = {"LEFT": "normal", "RIGHT": "deviant"}
+        test_key_mapping1 = {"Z": "deviant", "M": "normal"}
+        test_key_mapping2 = {"Z": "normal", "M": "deviant"}
 
-        explicit_key_mapping1 = {"LEFT": "frequent", "RIGHT": "infrequent"}
-        explicit_key_mapping2 = {"LEFT": "infrequent", "RIGHT": "frequent"}
+        explicit_key_mapping1 = {"Z": "frequent", "M": "infrequent"}
+        explicit_key_mapping2 = {"Z": "infrequent", "M": "frequent"}
 
 
         # Localizer phase

@@ -53,12 +53,12 @@ def localizer_response(window, target_modality, target_count, context):
 
 def learning_response(window, key_mapping, trial, response_trigger, context):
     text_widget = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR, position = (window.width / 2, window.height / 2))
-    text_widget.text = f"< {key_mapping['LEFT']}    neutral    {key_mapping['RIGHT']} >"
+    text_widget.text = f"< z {key_mapping['Z']}    neutral    {key_mapping['M']} m >"
     text_widget.draw()
     clock = Clock()  # This allows to init a clock to measure the RT
     window.flip()
     clock.reset()  # This allows to reset the clock
-    key_event = window.wait_key(["SPACE", "LEFT", "RIGHT"], clock=clock, max_wait=2)
+    key_event = window.wait_key(["SPACE", "Z", "M"], clock=clock, max_wait=2)
     send_trigger(response_trigger, context)  # Send the response trigger
     reaction_time = key_event.timestamp
     interval = Interval(duration=16/1000)  # safety interval between response trigger and the start of next trial
@@ -95,12 +95,12 @@ def learning_response(window, key_mapping, trial, response_trigger, context):
 def test_response(window, key_mapping, trial, response_trigger, context):
 
     text_widget = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR, position = (window.width / 2, window.height / 2))
-    text_widget.text = f"< {key_mapping['LEFT']}            {key_mapping['RIGHT']} >"
+    text_widget.text = f"< z {key_mapping['Z']}            {key_mapping['M']} m >"
     text_widget.draw()
     clock = Clock()  # This allows to init a clock to measure the RT
     window.flip()
     clock.reset()  # This allows to reset the clock
-    key_event = window.wait_key(["LEFT", "RIGHT"], clock=clock, max_wait=2)
+    key_event = window.wait_key(["Z", "M"], clock=clock, max_wait=2)
     send_trigger(response_trigger, context)  # Send the response trigger
     reaction_time = key_event.timestamp
     interval = Interval(duration=16/1000)  # safety interval between response trigger and the start of next trial
@@ -135,13 +135,13 @@ def test_response(window, key_mapping, trial, response_trigger, context):
 def explicit_response(window, key_mapping, trial, response_trigger, confidence_trigger, context):
 
     text_widget = Text(font_size=RESPONSE_FONT_SIZE, color=COLOR, position = (window.width / 2, window.height / 2))
-    text_widget.text = f"< {key_mapping['LEFT']}            {key_mapping['RIGHT']} >"
+    text_widget.text = f"< Z {key_mapping['Z']}            {key_mapping['M']} M >"
     text_widget.position = (window.width * 0.5, window.height * 0.5)  # Center the text on the screen
     text_widget.draw()
     clock = Clock()  # This allows to init a clock to measure the RT
     window.flip()
     clock.reset()  # This allows to reset the clock
-    key_event1 = window.wait_key(["LEFT", "RIGHT"], clock=clock, max_wait=60)
+    key_event1 = window.wait_key(["Z", "M"], clock=clock, max_wait=60)
     send_trigger(response_trigger, context)  # Send the response trigger
     reaction_time = key_event1.timestamp
     
