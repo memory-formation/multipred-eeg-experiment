@@ -144,8 +144,7 @@ def explicit_response(window, key_mapping, trial, response_trigger, confidence_t
     key_event1 = window.wait_key(["LEFT", "RIGHT"], clock=clock, max_wait=60)
     send_trigger(response_trigger, context)  # Send the response trigger
     reaction_time = key_event1.timestamp
-    interval = Interval(duration=16/1000)  # safety interval between response trigger and the start of next trial
-    interval.reset()
+    
 
     pressed_key1 = key_event1.key if key_event1 else None
     response = key_mapping.get(pressed_key1, "NA")
@@ -196,8 +195,6 @@ def explicit_response(window, key_mapping, trial, response_trigger, confidence_t
         send_trigger(confidence_trigger, context)  # Send the confidence trigger
         confidence = key_event2.key if key_event2 else None
         confidence_RT = key_event2.timestamp 
-
-    interval.wait()
 
     return {  # returning the response data
         "pressed_key1": pressed_key1,
