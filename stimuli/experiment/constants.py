@@ -19,7 +19,7 @@ DATA_FOLDER = "data"
 
 # Constants for the experiment setup
 PHASES = {
-    "localizer_trials": 20,
+    "localizer_trials": 50,
     "localizer_blocks": ["multimodal", "multimodal"], # can be "visual", "auditory" or "multimodal"
     "localizer_targets": ["visual", "visual"], # When blocks are multimodal, this will define the target modality
     "learning_blocks": 2,
@@ -80,8 +80,8 @@ GABOR_PARAMS = {
 
 
 ISOTONIC_SOUNDS = { # Amplitudes needed for each frequency to make them isotonic. (calculated according to ISO 266)
-    100: 0.8, 
-    160: 0.41,
+    100: 1, 
+    160: 0.25, # according to ISO it should be 0.41 but different people preceive it louder than the rest
     1000: 0.061,
     1600: 0.081,
 
@@ -107,7 +107,8 @@ INSTRUCTIONS_TEXT = {
 
     "localizer_continue": [
         "We are going to do another functional localizer.", 
-        "Remember the associations you have learned. Your task is the same: discriminate between frequent and infrequent pairs of orientations.", 
+        "You will see a sequence of 8 Gabor patches, accompanied by a sound.",
+        "Your task is to count how many Gabor patches had a lower spatial frequency (lines more spread out)",
         "Press the space bar to continue.",
     ],
    
