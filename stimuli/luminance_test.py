@@ -7,14 +7,24 @@ from psychos.visual import Text
 full_screen = "Yes"  # This should be set based on the user's choice or the environment
 screen_info = SCREENS["hp_laptop"]
 fixation_color = FIXATION_PARAMS["color"]
-window = Window(background_color=BACKGROUND_COLOR, fullscreen=full_screen == "Yes")
+window = Window(background_color=BACKGROUND_COLOR, fullscreen=full_screen == "Yes", coordinates="px")
 
-draw_gabor(45, screen_info)
+draw_gabor(0, screen_info, spatial_frequency=0.7)
 draw_fixation(fixation_color, screen_info)
 window.flip()
 key_event = window.wait_key(["SPACE"])
 
-draw_gabor(135, screen_info)
+draw_gabor(90, screen_info, spatial_frequency=0.7)
+draw_fixation(fixation_color, screen_info)
+window.flip()
+key_event = window.wait_key(["SPACE"])
+
+draw_gabor(45, screen_info, spatial_frequency=0.7)
+draw_fixation(fixation_color, screen_info)
+window.flip()
+key_event = window.wait_key(["SPACE"])
+
+draw_gabor(135, screen_info, spatial_frequency=0.7)
 draw_fixation
 window.flip()
 key_event = window.wait_key(["SPACE"])
