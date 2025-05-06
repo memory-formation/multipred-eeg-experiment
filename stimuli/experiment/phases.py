@@ -6,8 +6,7 @@ from experiment.constants import (FIXATION_PARAMS, GABOR_PARAMS,
                                   ISOTONIC_SOUNDS, PHASES, STAIRCASE_PARAMS,
                                   STIM_INFO)
 from experiment.presentation import (create_puretone, draw_fixation,
-                                     draw_gabor, draw_white_square,
-                                     show_instructions)
+                                     draw_gabor, show_instructions)
 from experiment.responses import (calculate_block_performance,
                                   explicit_response, learning_response,
                                   load_last_staircase_data, localizer_response,
@@ -15,7 +14,6 @@ from experiment.responses import (calculate_block_performance,
 from experiment.triggers import send_trigger
 from psychos.core import Clock, Interval
 
-square_test = True
 
 def localizer_phase(participant_data, block, window, full_screen, screen_info):
     # Instructions
@@ -47,7 +45,6 @@ def localizer_phase(participant_data, block, window, full_screen, screen_info):
         interval = Interval(duration=iti_duration)  # This allows to init a time counter of duration
         interval.reset()  # This allows to reset the time counter
         draw_fixation(fixation_color, screen_info)  # draw the fixation dot with feedback color
-        #if square_test: draw_white_square(screen_info) # draw a white square for testing purposes
         window.flip()
         send_trigger("loc_trial_start", context) # send trigger for the start of the trial
         timestamp_dicts["start_fixation"] = trial_clock.time()
@@ -101,31 +98,11 @@ def localizer_phase(participant_data, block, window, full_screen, screen_info):
                 draw_gabor(visual_ori, screen_info, spatial_frequency=spatial_frequency) # Preload gabor
                 draw_fixation(fixation_color, screen_info) # Preload fixation
             
-            if square_test: draw_white_square(screen_info) # draw a white square for testing purposes
             interval.wait()  # Waits for the remaining time of the interval
             
-            #play_call_time = trial_clock.time()
             tone.play()  # play the leading tone
-            #play_complete_time = trial_clock.time()
-
-            #flip_call_time = trial_clock.time()
             window.flip()  # Flips the window to show the pre-loaded gabor
-            #flip_complete_time = trial_clock.time()
-
-            #trigger_send_time = trial_clock.time()
             send_trigger(f"loc_{visual_ori}_{auditory_freq}", context) # send trigger for the leading stimulus
-            #trigger_sent_complete_time = trial_clock.time()
-
-            # Print timings immediately for debugging (remove later for real experiments)
-            # print(f"Flip Called at {flip_call_time:.6f}s, Flip Completed at {flip_complete_time:.6f}s")
-            # print(f"play tone Called at {play_call_time:.6f}s, play tone Completed at {play_complete_time:.6f}s")
-            # print(f"Trial {i+1}: Trigger Sent at {trigger_send_time:.6f}s, Trigger Sent Complete at {trigger_sent_complete_time:.6f}s")
-            # print(f"Delay from play tone call to play complete: {(play_complete_time - play_call_time)*1000:.2f} ms")
-            # print(f"Delay from Flip Call to Flip Complete: {(flip_complete_time - flip_call_time)*1000:.2f} ms")
-            # print(f"Delay from completed flip to send trigger call: {(trigger_send_time - flip_complete_time)*1000:.2f} ms")
-            # print(f"Delay from completed flip to play complete call: {(play_complete_time - flip_complete_time)*1000:.2f} ms")
-            # print(f"Delay from send trigger call to send trigger complete: {(trigger_sent_complete_time - trigger_send_time)*1000:.2f} ms")
-            # print("--------------------------------------------------------")
 
             timestamp_dicts["start_leading"] = trial_clock.time()
             window.wait(STIM_INFO["leading_duration"])  # Waits for the leading duration
@@ -133,7 +110,6 @@ def localizer_phase(participant_data, block, window, full_screen, screen_info):
             interval = Interval(duration=STIM_INFO["isi_duration"])
             interval.reset()
             draw_fixation(fixation_color, screen_info)  # draw the fixation dot with feedback color
-            #if square_test: draw_white_square(screen_info)
             window.flip()
             send_trigger("loc_isi", context) # send trigger for the ISI
             timestamp_dicts["start_isi"] = trial_clock.time()
@@ -200,7 +176,6 @@ def learning_phase(participant_data, block, window, full_screen, screen_info):
         interval.reset()  # This allows to reset the time counter
 
         draw_fixation(fixation_color, screen_info)  # draw the fixation dot with feedback color
-        #if square_test: draw_white_square(screen_info)
         window.flip()
 
         send_trigger(trial_start_trigger, context) # send trigger for the start of the trial
@@ -215,32 +190,22 @@ def learning_phase(participant_data, block, window, full_screen, screen_info):
         )
         draw_gabor(trial["v_leading"], screen_info)  # initiate the leading gabor,
         draw_fixation(fixation_color, screen_info)  # Preload fixation
-        if square_test: draw_white_square(screen_info)
         interval.wait()  # Waits for the remaining time of the interval
 
         # presentation
         leading_tone.play()  # play the leading tone
-
-        #draw_cue_call_time = trial_clock.time()
         window.flip()  # Flips the window to show the pre-loaded gabor
-        #draw_cue_complete_time = trial_clock.time()
-
-        #cue_trigger_send_time = trial_clock.time()
         send_trigger(cue_onset_trigger, context) # send trigger for the leading stimulus
-        #cue_trigger_complete_time = trial_clock.time()
 
         timestamp_dicts["start_leading"] = trial_clock.time()
         window.wait(STIM_INFO["leading_duration"])  # Waits for the leading duration
-        #draw_finished_time = trial_clock.time()
+
         # ======= ISI ========
         interval = Interval(duration=STIM_INFO["isi_duration"])
         interval.reset()
-        #isi_interval_reset_time = trial_clock.time()
         draw_fixation(fixation_color, screen_info)
         window.flip()
-        #isi_trigger_send_time = trial_clock.time()
         send_trigger(isi_trigger, context) # send trigger for the ISI)
-        #isi_trigger_complete_time = trial_clock.time()
         
         timestamp_dicts["start_isi"] = trial_clock.time()
 
@@ -251,28 +216,15 @@ def learning_phase(participant_data, block, window, full_screen, screen_info):
         )
         draw_gabor(trial["v_trailing"], screen_info)
         draw_fixation(fixation_color, screen_info)
-        if square_test: draw_white_square(screen_info) # draw a white square for testing purposes
         interval.wait()
-        #isi_interval_complete_time = trial_clock.time()
 
         # presentation
         trailing_tone.play()
-        
-        #draw_target_call_time = trial_clock.time()
         window.flip()  # Flips the window to show the pre-loaded gabor
-        #draw_target_complete_time = trial_clock.time()
-
-        #target_trigger_send_time = trial_clock.time()
         send_trigger(target_onset_trigger, context) # send trigger for the trailing stimulus
-        #target_trigger_complete_time = trial_clock.time()
 
         timestamp_dicts["start_trailing"] = trial_clock.time()
         window.wait(STIM_INFO["target_duration"])
-
-        # print(f"cue presentation - trigger delay: {(draw_cue_complete_time - draw_cue_complete_time)*1000:.2f} ms")
-        # print(f"ISI delay: {(isi_interval_complete_time - isi_interval_reset_time)*1000:.2f} ms")
-        # print(f"target presentation - trigger delay: {(draw_target_complete_time - target_trigger_send_time)*1000:.2f} ms")
-        # print(f"target draw - target finish: {(draw_finished_time - draw_cue_complete_time)*1000:.2f} ms")
 
         # ======= Response ========
         timestamp_dicts["start_response"] = trial_clock.time()
@@ -357,7 +309,6 @@ def test_phase(participant_data, block, window, full_screen, screen_info):
             )
         draw_gabor(trial["v_leading"], screen_info)  # initiate the leading gabor,
         draw_fixation(fixation_color, screen_info)  # Preload fixation
-        if square_test: draw_white_square(screen_info) # draw a white square for testing purposes
         interval.wait()  # Waits for the remaining time of the interval
 
         # presentation
@@ -389,7 +340,6 @@ def test_phase(participant_data, block, window, full_screen, screen_info):
 
         draw_gabor(trial["v_trailing"] + current_ori_diff, screen_info)  # draw the trailing gabor
         draw_fixation(fixation_color, screen_info)  # Preload fixation
-        if square_test: draw_white_square(screen_info) # draw a white square for testing purposes
         interval.wait()
 
         # presentation
@@ -493,8 +443,6 @@ def explicit_phase(participant_data, block, window, full_screen, screen_info):
         else:
             draw_gabor(trial["v_leading"], screen_info)  # initiate the leading gabor,
             draw_fixation(fixation_color, screen_info)
-
-        if square_test: draw_white_square(screen_info) # draw a white square for testing purposes
         interval.wait()  
 
         # presentation
@@ -523,8 +471,6 @@ def explicit_phase(participant_data, block, window, full_screen, screen_info):
         else:
             draw_gabor(trial["v_trailing"], screen_info)
             draw_fixation(fixation_color, screen_info)
-        
-        if square_test: draw_white_square(screen_info) # draw a white square for testing purposes
         interval.wait()
 
         # presentation

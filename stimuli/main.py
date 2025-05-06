@@ -1,10 +1,3 @@
-# import ctypes
-# # do not let windows scale the app to the screen resolution, keep control of the window size
-# try:
-#     ctypes.windll.shcore.SetProcessDpiAwareness(2)  # 2 = PROCESS_PER_MONITOR_DPI_AWARE
-# except Exception as e:
-#     print("Could not set DPI awareness:", e)
-
 import argparse
 import os
 
