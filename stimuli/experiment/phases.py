@@ -50,6 +50,7 @@ def localizer_phase(participant_data, block, window, full_screen, screen_info):
         timestamp_dicts["start_fixation"] = trial_clock.time()
         
         # ======= Stimuli sequence ========
+        first_stim = True # set to True before starting the trial sequence loop
         for auditory_freq, visual_ori, target, block_modality, target_modality in zip(trial["auditory_sequence"], trial["visual_sequence"], trial["target_sequence"], trial["block_modality"], trial["target_modality"]):      
             # pre-load stimuli
             fixation_color =  FIXATION_PARAMS["color"] # reset the fixation color to the default color for the ISI
@@ -97,12 +98,25 @@ def localizer_phase(participant_data, block, window, full_screen, screen_info):
                 )
                 draw_gabor(visual_ori, screen_info, spatial_frequency=spatial_frequency) # Preload gabor
                 draw_fixation(fixation_color, screen_info) # Preload fixation
+
+            # define trigger type
+            if first_stim: # first stimulus in the sequence
+                first_stim = False # set to False after the first stimulus
+                if target == 0:
+                    trigger_type = f"loc_{visual_ori}_{auditory_freq}_first"
+                else:
+                    trigger_type = f"loc_{visual_ori}_{auditory_freq}_first_target"
+            else: # subsequent stimuli in the sequence
+                if target == 0:
+                    trigger_type = f"loc_{visual_ori}_{auditory_freq}"
+                else:
+                    trigger_type = f"loc_{visual_ori}_{auditory_freq}_target"
             
             interval.wait()  # Waits for the remaining time of the interval
             
             tone.play()  # play the leading tone
             window.flip()  # Flips the window to show the pre-loaded gabor
-            send_trigger(f"loc_{visual_ori}_{auditory_freq}", context) # send trigger for the leading stimulus
+            send_trigger(trigger_type, context) # send trigger for the leading stimulus
 
             timestamp_dicts["start_leading"] = trial_clock.time()
             window.wait(STIM_INFO["leading_duration"])  # Waits for the leading duration

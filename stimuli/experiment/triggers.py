@@ -196,11 +196,29 @@ def generate_triggers(condition_dict):
     localizer_triggers = {
     "loc_trial_start": highest_trigger + 1, 
     "loc_isi": highest_trigger + 2,
-    "loc_45_100": highest_trigger + 3,
-    "loc_45_160": highest_trigger + 4,
-    "loc_135_100": highest_trigger + 5,
-    "loc_135_160": highest_trigger + 6,
-    "loc_response": highest_trigger + 7,
+    "loc_response": highest_trigger + 3,
+
+    # stimulus triggers
+    "loc_45_100": highest_trigger + 4,
+    "loc_45_160": highest_trigger + 5,
+    "loc_135_100": highest_trigger + 6,
+    "loc_135_160": highest_trigger + 7,
+    # + 10 if first in trial sequence
+    "loc_45_100_first": highest_trigger + 14,
+    "loc_45_160_first": highest_trigger + 15,
+    "loc_135_100_first": highest_trigger + 16,
+    "loc_135_160_first": highest_trigger + 17,
+    # + 20 if target stimulus
+    "loc_45_100_target": highest_trigger + 24,
+    "loc_45_160_target": highest_trigger + 25,
+    "loc_135_100_target": highest_trigger + 26,
+    "loc_135_160_target": highest_trigger + 27,
+    # + 30 if target stimulus and first in trial sequence
+    "loc_45_100_first_target": highest_trigger + 34,
+    "loc_45_160_first_target": highest_trigger + 35,
+    "loc_135_100_first_target": highest_trigger + 36,
+    "loc_135_160_first_target": highest_trigger + 37,
+
     "recording_on": 250, # Trigger for starting the recording
     "recording_off": 251, # Trigger for stopping the recording
     }
