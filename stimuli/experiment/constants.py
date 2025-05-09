@@ -19,7 +19,7 @@ DATA_FOLDER = "data"
 
 # Constants for the experiment setup
 PHASES = {
-    "localizer_trials": 50,
+    "localizer_trials": 40, # sequences of 12 stimuli. 40 * 12 = 480 stimuli per block. x2 blocks /2 for each stim class (CW, CCW) --> 480. 
     "localizer_blocks": ["multimodal", "multimodal"], # can be "visual", "auditory" or "multimodal"
     "localizer_targets": ["visual", "visual"], # When blocks are multimodal, this will define the target modality
     "learning_blocks": 2,

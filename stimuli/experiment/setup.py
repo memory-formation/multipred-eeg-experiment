@@ -21,7 +21,7 @@ def generate_localizer_sequences(block_modality="visual", target_modality="visua
 
     trials = []
     for trial in range(PHASES["localizer_trials"]):
-        stimuli = [(45, 100), (45, 160), (135, 100), (135, 160)] * 2 # define multimodal pairs to ensure balanced presentation
+        stimuli = [(45, 100), (45, 160), (135, 100), (135, 160)] * 3 # define multimodal pairs to ensure balanced presentation 4 * 3 = 12
         random.shuffle(stimuli) # shuffle the pairs
         visual_stimuli = [stim[0] for stim in stimuli] # extract the visual stimuli
         auditory_stimuli = [stim[1] for stim in stimuli] # extract the auditory stimuli
